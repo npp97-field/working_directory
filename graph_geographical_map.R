@@ -14,8 +14,8 @@ lc_col<-c("palegreen4","yellowgreen","lightseagreen",
 # site_no<-dim(site_list)[1]
 # write.csv(site_list,"./retrieve_site/sites_35N.csv",row.names = F)
 setwd("/Users/yzhang/Project/SIF_phenology/")
-site_list<-read.csv("./retrieve_site/sites_35N.csv",stringsAsFactors = F)
-site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3.csv",stringsAsFactors = F)
+site_list<-read.csv("./retrieve_site/sites_30N.csv",stringsAsFactors = F)
+site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.25_N30.csv",stringsAsFactors = F)
 site_phenology_used<-site_phenology[!is.na(site_phenology$sos_gpp),]
 
 comb_f<-list.files("./retrieve_site/combined/",full.names = T)
@@ -69,8 +69,8 @@ plot_long<-function(lon){
   # }else{
   # 
   # }
-  norths<- 7:16*5
-  easts<- rep(lon,10)
+  norths<- 6:16*5
+  easts<- rep(lon,11)
   
   long <- cbind(easts, norths)	
   long <- rbind(long, long[1,])	# creates a matrix with two colums
@@ -81,8 +81,8 @@ plot_long<-function(lon){
 }
 
 plotlatlong<-function(){
-  for (i in 3:5){
-    prjlat<-plot_lat(i*15+5)
+  for (i in 3:8){
+    prjlat<-plot_lat(i*10)
     lines(prjlat,lty=8,col='grey50',lwd=0.5)
   }
   
@@ -96,15 +96,15 @@ plotlatlong<-function(){
 
 
 
-border<-plot_lat(35)
+border<-plot_lat(30)
 lat60<-plot_lat(60)
 
 ### coastlines
 coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
-cropcoast<-crop(coastline,extent(-180,180,35,90))
+cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/site_loc_0.3.pdf",width=11,height=11)
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/site_loc_0.25_30N.pdf",width=11,height=11)
 
 #### -----------------------------------------
 ##  a
@@ -187,8 +187,8 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("SOS"[EC]) )
-mtext(side=1,line=1.8,expression("SOS"[CSIF]))
+mtext(side=1,line=1.8,expression("SOS"[EC]) )
+mtext(side=2,line=1.8,expression("SOS"[CSIF]))
 mtext(side=2,line=1.5,'d',cex=1.8,font=2,padj=-6,las=2)
 #### -----------------------------------------
 ##  e
@@ -214,13 +214,13 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("EOS"[EC]) )
-mtext(side=1,line=1.8,expression("EOS"[CSIF]))
+mtext(side=1,line=1.8,expression("EOS"[EC]) )
+mtext(side=2,line=1.8,expression("EOS"[CSIF]))
 mtext(side=2,line=1.5,'e',cex=1.8,font=2,padj=-6,las=2)
 #### -----------------------------------------
 ##  f
 par(fig=c(0.33,0.66,0,0.33),mar=c(3.4,3.4,1.4,1.4),new=T)
-plot(NA,xlim=c(100, 320),ylim=c(100,320),axes=F,xlab="",ylab="")
+plot(NA,xlim=c(80, 320),ylim=c(80,320),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
   biome_pheno<-site_phenology_used[!is.na(match(site_phenology_used$site,site_name_biome)),]
@@ -243,8 +243,8 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("LOS"[EC]) )
-mtext(side=1,line=1.8,expression("LOS"[CSIF]))
+mtext(side=1,line=1.8,expression("LOS"[EC]) )
+mtext(side=2,line=1.8,expression("LOS"[CSIF]))
 mtext(side=2,line=1.5,'f',cex=1.8,font=2,padj=-6,las=2)
 
 #### -----------------------------------------
@@ -271,8 +271,8 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("SOS"[EC]) )
-mtext(side=1,line=1.8,expression("SOS"[NDVI]))
+mtext(side=1,line=1.8,expression("SOS"[EC]) )
+mtext(side=2,line=1.8,expression("SOS"[NDVI]))
 mtext(side=2,line=1.5,'g',cex=1.8,font=2,padj=-6,las=2)
 #### -----------------------------------------
 ##  h
@@ -298,13 +298,13 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("EOS"[EC]) )
-mtext(side=1,line=1.8,expression("EOS"[NDVI]))
+mtext(side=1,line=1.8,expression("EOS"[EC]) )
+mtext(side=2,line=1.8,expression("EOS"[NDVI]))
 mtext(side=2,line=1.5,'h',cex=1.8,font=2,padj=-6,las=2)
 #### -----------------------------------------
 ##  i
 par(fig=c(0.66,1,0,0.33),mar=c(3.4,3.4,1.4,1.4),new=T)
-plot(NA,xlim=c(100, 320),ylim=c(100,320),axes=F,xlab="",ylab="")
+plot(NA,xlim=c(80, 320),ylim=c(80,320),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
   biome_pheno<-site_phenology_used[!is.na(match(site_phenology_used$site,site_name_biome)),]
@@ -328,8 +328,8 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=2,line=1.8,expression("LOS"[EC]) )
-mtext(side=1,line=1.8,expression("LOS"[NDVI]))
+mtext(side=1,line=1.8,expression("LOS"[EC]) )
+mtext(side=2,line=1.8,expression("LOS"[NDVI]))
 mtext(side=2,line=1.5,'i',cex=1.8,font=2,padj=-6,las=2)
 dev.off()
      

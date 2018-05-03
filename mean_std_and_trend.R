@@ -28,13 +28,13 @@ calculate_stat<-function(dat,outfile){
   sen_trend<-apply(dat,1,senslope)
   sig_trend<-apply(dat,1,mk_test)
   sif_analysis<-cbind(mean_dat,std_dat,sen_trend,sig_trend)
-  dim(sif_analysis)<-c(720,110,4)
+  dim(sif_analysis)<-c(720,120,4)
   export_nc(sif_analysis,outfile)
 }
 
 
 export_nc<-function(pheno_dat,outfile){
-  latmin<- 35
+  latmin<- 30
   latmax<- 90
   latd<- 0.5
   lonmin<- -180
@@ -65,11 +65,11 @@ setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
 indicator<-c('var','fixed')
 
 stat_dataset<-function(indi){
-  pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold/",sep=""),full.names = T)
-  sos<-array(NA,dim=c(79200,14))
-  eos<-array(NA,dim=c(79200,14))
-  lgs<-array(NA,dim=c(79200,14))
-  thresh<-array(NA,dim=c(79200,14))
+  pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold/",sep=""),pattern=".nc",full.names = T)
+  sos<-array(NA,dim=c(86400,14))
+  eos<-array(NA,dim=c(86400,14))
+  lgs<-array(NA,dim=c(86400,14))
+  thresh<-array(NA,dim=c(86400,14))
   
   for (i in 1:length(pheno_files)){
     ncf<-nc_open(pheno_files[i])
@@ -82,10 +82,10 @@ stat_dataset<-function(indi){
     thresh[,i]<-ncthresh
   }
   lgs<-eos-sos
-  calculate_stat(sos,paste("./analysis/SOS_",indi,"_stat.nc",sep=""))
-  calculate_stat(eos,paste("./analysis/EOS_",indi,"_stat.nc",sep=""))
-  calculate_stat(lgs,paste("./analysis/LGS_",indi,"_stat.nc",sep=""))
-  calculate_stat(thresh,paste("./analysis/THRESH_",indi,"_stat.nc",sep=""))
+  calculate_stat(sos,paste("./analysis/SOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(eos,paste("./analysis/EOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(lgs,paste("./analysis/LGS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(thresh,paste("./analysis/THRESH_30N_",indi,"_stat.nc",sep=""))
 }
 
 #### variable threshold for each year

@@ -66,8 +66,8 @@ gpp_f<-list.files("./retrieve_site/EC_4day/",full.names = T)
 sif<-read.csv("./retrieve_site/sites166_with_CSIF.csv",stringsAsFactors = F)
 sites<-gsub('\\.','-',names(sif)[2:(dim(sif)[2])])
 names(sif)<-c("DATE",sites)
-site_list<-read.csv("./retrieve_site/sites_35N.csv",stringsAsFactors = F)
-site_list<-site_list[site_list$LOCATION_LAT>=35,]
+site_list<-read.csv("./retrieve_site/sites_30N.csv",stringsAsFactors = F)
+site_list<-site_list[site_list$LOCATION_LAT>=30,]
 site_no<-dim(site_list)[1]
 
 ndvi_data<-read.csv('./retrieve_site/MOD13C1/ndvi_data.csv',stringsAsFactors = F)

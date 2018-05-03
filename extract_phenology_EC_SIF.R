@@ -27,11 +27,11 @@ extract_thresh<-function(in_var_ts,thresh){
 }
 
 
-threshold_pct<-0.3
+threshold_pct<-0.25
 retrieved_pheno<-as.data.frame(array(NA,dim=c(1000,8)))
 names(retrieved_pheno)<-c("site",'year','sos_gpp','eos_gpp','sos_ndvi','eos_ndvi','sos_csif','eos_csif')
 
-site_list<-read.csv("./retrieve_site/sites_35N.csv",stringsAsFactors = F)
+site_list<-read.csv("./retrieve_site/sites_30N.csv",stringsAsFactors = F)
 com_f<-list.files('./retrieve_site/combined/',full.names = T)
 k<-0
 for (i in 1:dim(site_list)[1]){
@@ -137,5 +137,5 @@ cor.test(retrieved_pheno$eos_gpp-floor(retrieved_pheno$eos_gpp),
          retrieved_pheno$eos_csif-floor(retrieved_pheno$eos_csif))
 
 
-write.csv(retrieved_pheno,"./retrieve_site/analysis/site_phenology_0.3.csv",row.names = F)
+write.csv(retrieved_pheno,"./retrieve_site/analysis/site_phenology_0.25_N30.csv",row.names = F)
 

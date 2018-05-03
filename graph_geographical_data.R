@@ -35,8 +35,8 @@ plot_long<-function(lon){
   # }else{
   # 
   # }
-  norths<- 7:16*5
-  easts<- rep(lon,10)
+  norths<- 6:16*5
+  easts<- rep(lon,11)
   
   long <- cbind(easts, norths)	
   long <- rbind(long, long[1,])	# creates a matrix with two colums
@@ -49,7 +49,7 @@ plot_long<-function(lon){
 
 nc2ae<-function(dat){
   latlongdat<-raster(apply(dat,1,rev))
-  extent(latlongdat)<-c(-180,180,35,90)
+  extent(latlongdat)<-c(-180,180,30,90)
   projection(latlongdat)<-longlat
   extae <- projectExtent(latlongdat, ae)
   aedat<-projectRaster(latlongdat,extae,method = "bilinear")
@@ -58,8 +58,8 @@ nc2ae<-function(dat){
 
 plotlatlong<-function(){
  
-  for (i in 3:5){
-    prjlat<-plot_lat(i*15+5)
+  for (i in 3:8){
+    prjlat<-plot_lat(i*10)
     lines(prjlat,lty=8,col='grey50',lwd=0.5)
   }
   
@@ -78,26 +78,26 @@ setrange<-function(dat,a,b){
 }
 
 
-border<-plot_lat(35)
+border<-plot_lat(30)
 #lat60<-plot_lat(60)
 
 ### coastlines
 coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
-cropcoast<-crop(coastline,extent(-180,180,35,90))
+cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
 setwd("/Users/yzhang/Project/SIF_phenology/analysis/")
-ncin<-nc_open("./SOS_fixed_stat.nc")
+ncin<-nc_open("./SOS_30N_fixed_stat.nc")
 sossif<-ncvar_get(nc = ncin,varid = "MEAN")
 sostrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
 
-ncin<-nc_open("./EOS_fixed_stat.nc")
+ncin<-nc_open("./EOS_30N_fixed_stat.nc")
 eossif<-ncvar_get(nc = ncin,varid = "MEAN")
 eostrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
 
-ncin<-nc_open("./LGS_fixed_stat.nc")
+ncin<-nc_open("./LGS_30N_fixed_stat.nc")
 lgssif<-ncvar_get(nc = ncin,varid = "MEAN")
 lgstrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
@@ -114,8 +114,8 @@ aelgs_t<-nc2ae(lgstrend)
 pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/pheno_map.pdf",width=11/3*2.4,height=11)
 par(fig=c(0,0.45,2/3,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0))
 plot(border)
-image(setrange(aesos+2.5/92,0.2192,0.5479),add=T,col=lst_color_ramp,axes=F,zlim=c(0.2192,0.5479))
-text(0, 5200000,"SOS",cex=1.3)
+image(setrange(aesos+2.5/365,0.2192,0.5479),add=T,col=lst_color_ramp,axes=F,zlim=c(0.2192,0.5479))
+text(0, 5500000,"SOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
 par(fig=c(0,0.48,0.66,1),new=T)
@@ -128,15 +128,15 @@ plot(aesos, legend.only=TRUE, col=lst_color_ramp,horizontal=F,zlim=c(0.2191,0.54
 
 par(fig=c(0,0.45,1/3,2/3),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
-image(setrange(aeeos,0.4383,0.822),add=T,col=rev(lst_color_ramp),axes=F,zlim=c(0.4383,0.822))
-text(0, 5200000,"EOS",cex=1.3)
+image(setrange(aeeos+2.5/365,0.5479,0.8768),add=T,col=rev(lst_color_ramp),axes=F,zlim=c(0.5479,0.8768))
+text(0, 5500000,"EOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"b",cex=1.8,font=2,padj=-7,las=2)
 par(fig=c(0,0.48,0.33,0.66),new=T)
-plot(aesos, legend.only=TRUE, col=rev(lst_color_ramp),horizontal=F,zlim=c(0.4383,0.822),
+plot(aesos, legend.only=TRUE, col=rev(lst_color_ramp),horizontal=F,zlim=c(0.5479,0.8768),
      legend.width=1.3, legend.shrink=0.75,label="SOS DOY",
-     axis.args=list(at=seq(160, 300, 20)/365,
-                    labels=seq(160, 300, 20), mgp=c(3,0.2,0),tck=0.3,
+     axis.args=list(at=seq(200, 320, 20)/365,
+                    labels=seq(200, 320, 20), mgp=c(3,0.2,0),tck=0.3,
                     cex.axis=1))#,
      #legend.args=list(text='DOY', side=4, font=1, line=2, cex=1.1))
 
@@ -144,7 +144,7 @@ plot(aesos, legend.only=TRUE, col=rev(lst_color_ramp),horizontal=F,zlim=c(0.4383
 par(fig=c(0,0.45,0.00,1/3),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
 image(setrange(aelgs,0.2191,0.5480),add=T,col=rev(lst_color_ramp),axes=F,zlim=c(0.2191,0.5480))
-text(0, 5200000,"LGS",cex=1.3)
+text(0, 5500000,"LGS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"c",cex=1.8,font=2,padj=-7,las=2)
 
@@ -160,37 +160,39 @@ plot(aesos, legend.only=TRUE, col=rev(lst_color_ramp),horizontal=F,zlim=c(0.2191
 #############################
 par(fig=c(0.5,0.95,2/3,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
-image(setrange(aesos_t,-0.00822,0.00822),add=T,col=rev(ano_discrete_ramp),axes=F,zlim=c(-0.00822,0.00822))
-text(0, 5200000,"SOS",cex=1.3)
+image(setrange(aesos_t,-0.004109589,0.004109589),add=T,col=rev(ano_discrete_ramp),
+      axes=F,zlim=c(-0.004109589,0.004109589))
+text(0, 5500000,"SOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"d",cex=1.8,font=2,padj=-7,las=2)
 par(fig=c(0.5,0.98,0.66,1),new=T)
-plot(aesos, legend.only=TRUE, col=rev(ano_discrete_ramp_leg),horizontal=F,zlim=c(-0.00822,0.00822),
+plot(aesos, legend.only=TRUE, col=rev(ano_discrete_ramp_leg),horizontal=F,zlim=c(-0.004109589,0.004109589),
      legend.width=1.3, legend.shrink=0.75,
-     axis.args=list(at=seq(-3, 3, 0.5)/365,
-                    labels=c('-3','','-2','','-1','','0','','1','','2','','3'), mgp=c(3,0.2,0),tck=0.3,
+     axis.args=list(at=seq(-1.5, 1.5, 0.25)/365,
+                    labels=c('-1.5','','-1','','-0.5','','0','','0.5','','1','','1.5'), mgp=c(3,0.2,0),tck=0.3,
                     cex.axis=1))
 
 
 
 par(fig=c(0.5,0.95,1/3,2/3),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
-image(setrange(aeeos_t,-0.00822,0.00822),add=T,col=ano_discrete_ramp,axes=F,zlim=c(-0.00822,0.00822))
-text(0, 5200000,"EOS",cex=1.3)
+image(setrange(aeeos_t,-0.004109589,0.004109589),add=T,col=ano_discrete_ramp,
+      axes=F,zlim=c(-0.004109589,0.004109589))
+text(0, 5500000,"EOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"e",cex=1.8,font=2,padj=-7,las=2)
 par(fig=c(0.5,0.98,0.33,0.66),new=T)
-plot(aesos, legend.only=TRUE, col=ano_discrete_ramp_leg,horizontal=F,zlim=c(-0.00822,0.00822),
+plot(aesos, legend.only=TRUE, col=ano_discrete_ramp_leg,horizontal=F,zlim=c(-0.004109589,0.004109589),
      legend.width=1.3, legend.shrink=0.75,
-     axis.args=list(at=seq(-3, 3, 0.5)/365,
-                    labels=c('-3','','-2','','-1','','0','','1','','2','','3'), mgp=c(3,0.2,0),tck=0.3,
+     axis.args=list(at=seq(-1.5, 1.5, 0.25)/365,
+                    labels=c('-1.5','','-1','','-0.5','','0','','0.5','','1','','1.5'), mgp=c(3,0.2,0),tck=0.3,
                     cex.axis=1))
 
 
 par(fig=c(0.5,0.95,0.00,1/3),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
 image(setrange(aelgs_t,-0.00822,0.00822),add=T,col=ano_discrete_ramp,axes=F,zlim=c(-0.00822,0.00822))
-text(0, 5200000,"LGS",cex=1.3)
+text(0, 5500000,"LGS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"f",cex=1.8,font=2,padj=-7,las=2)
 
