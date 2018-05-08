@@ -231,11 +231,11 @@ gpplos<-site_phenology_used$eos_gpp-site_phenology_used$sos_gpp
 csiflos<-site_phenology_used$eos_csif-site_phenology_used$sos_csif
 corr<-cor.test(gpplos,csiflos)
 reg<-lm(gpplos~csiflos-1)
-text(320,100+220/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
+text(320,80+240/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
                                list(a=formatC(round(corr$estimate,2),format='f',digits = 2,flag="0"),
                                     b=corr$parameter)),
      pos=2)
-text(320,100+220/16*1.5,substitute(paste("RMSE=",a,sep=""),
+text(320,80+240/16*1.5,substitute(paste("RMSE=",a,sep=""),
                                list(a=formatC(sqrt(mean((reg$residuals)^2))*365,2),
                                     format='f',digits = 2,flag="0")),
      pos=2)
@@ -316,11 +316,11 @@ gpplos<-site_phenology_used$eos_gpp-site_phenology_used$sos_gpp
 csiflos<-site_phenology_used$eos_ndvi-site_phenology_used$sos_ndvi
 corr<-cor.test(gpplos,csiflos)
 reg<-lm(gpplos~csiflos-1)
-text(320,100+220/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
+text(320,80+240/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
                                list(a=formatC(round(corr$estimate,2),format='f',digits = 2,flag="0"),
                                     b=corr$parameter)),
      pos=2)
-text(320,100+220/16*1.5,substitute(paste("RMSE=",a,sep=""),
+text(320,80+240/16*1.5,substitute(paste("RMSE=",a,sep=""),
                                list(a=formatC(sqrt(mean((reg$residuals)^2))*365,2),format='f',digits = 2,flag="0")),
      pos=2)
 

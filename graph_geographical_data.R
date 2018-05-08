@@ -16,6 +16,10 @@ longlat <-  CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0
 ae<-"+proj=aeqd +lat_0=90 +lon_0=-0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 
 
+k=1
+indicator<-c("VI",'SIF')
+indi<-indicator[k]
+
 plot_lat<-function(lat){
   norths<-rep(lat,181)
   easts<- -90:90*2
@@ -58,7 +62,7 @@ nc2ae<-function(dat){
 
 plotlatlong<-function(){
  
-  for (i in 3:8){
+  for (i in 4:8){
     prjlat<-plot_lat(i*10)
     lines(prjlat,lty=8,col='grey50',lwd=0.5)
   }
@@ -87,17 +91,17 @@ cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
 setwd("/Users/yzhang/Project/SIF_phenology/analysis/")
-ncin<-nc_open("./SOS_30N_fixed_stat.nc")
+ncin<-nc_open(paste("./",indi,"_SOS_30N_fixed_stat.nc",sep=""))
 sossif<-ncvar_get(nc = ncin,varid = "MEAN")
 sostrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
 
-ncin<-nc_open("./EOS_30N_fixed_stat.nc")
+ncin<-nc_open(paste("./",indi,"_EOS_30N_fixed_stat.nc",sep=""))
 eossif<-ncvar_get(nc = ncin,varid = "MEAN")
 eostrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
 
-ncin<-nc_open("./LGS_30N_fixed_stat.nc")
+ncin<-nc_open(paste("./",indi,"_LGS_30N_fixed_stat.nc",sep=""))
 lgssif<-ncvar_get(nc = ncin,varid = "MEAN")
 lgstrend<-ncvar_get(nc = ncin,varid = "TREND")
 nc_close(ncin)
@@ -111,10 +115,10 @@ aelgs<-nc2ae(lgssif)
 aelgs_t<-nc2ae(lgstrend)
 
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/pheno_map.pdf",width=11/3*2.4,height=11)
+pdf(paste("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/pheno_map_fix_",indi,".pdf",sep=""),width=11/3*2.4,height=11)
 par(fig=c(0,0.45,2/3,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0))
 plot(border)
-image(setrange(aesos+2.5/365,0.2192,0.5479),add=T,col=lst_color_ramp,axes=F,zlim=c(0.2192,0.5479))
+image(setrange(aesos+(14.5-6*k)/365,0.2192,0.5479),add=T,col=lst_color_ramp,axes=F,zlim=c(0.2192,0.5479))
 text(0, 5500000,"SOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
@@ -128,7 +132,7 @@ plot(aesos, legend.only=TRUE, col=lst_color_ramp,horizontal=F,zlim=c(0.2191,0.54
 
 par(fig=c(0,0.45,1/3,2/3),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0),new=T)
 plot(border)
-image(setrange(aeeos+2.5/365,0.5479,0.8768),add=T,col=rev(lst_color_ramp),axes=F,zlim=c(0.5479,0.8768))
+image(setrange(aeeos+(14.5-6*k)/365,0.5479,0.8768),add=T,col=rev(lst_color_ramp),axes=F,zlim=c(0.5479,0.8768))
 text(0, 5500000,"EOS",cex=1.3)
 plotlatlong()
 mtext(side=2,line=-1.5,"b",cex=1.8,font=2,padj=-7,las=2)
@@ -213,8 +217,7 @@ text(-0.03,-1.03, labels = 'DOY', xpd = NA, srt = -90,cex=1.1)
 text(0.97, 1.02, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1) 
 text(0.97, 0, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1)    
 text(0.97, -1.03, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1)
-#text(12000000, 0, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1,col='red')    
-
+#text(12000000, 0, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1,col='red')
 
 dev.off()
 
