@@ -1,5 +1,9 @@
 ##### get (1) average, (2) standard deviation (3) trend
 ##### of SOS EOS, and threshold 
+
+# this code contains two sections, one for threshold method, one for the P M method.
+# this code should be run on habanero
+
 library(trend)
 library(ncdf4)
 
@@ -67,6 +71,7 @@ indicator<-c('var','fixed')
 stat_dataset<-function(indi){
   pheno_files<-list.files(paste("./pheno_VI_hd_",indi,"_threshold/",sep=""),pattern=".nc",full.names = T)
   sos<-array(NA,dim=c(86400,14))
+  pos<-array(NA,dim=c(86400,14))
   eos<-array(NA,dim=c(86400,14))
   lgs<-array(NA,dim=c(86400,14))
   thresh<-array(NA,dim=c(86400,14))
@@ -74,15 +79,18 @@ stat_dataset<-function(indi){
   for (i in 1:length(pheno_files)){
     ncf<-nc_open(pheno_files[i])
     ncsos<-ncvar_get(ncf,varid = "SOS")
+    ncpos<-ncvar_get(ncf,varid = "POS")
     nceos<-ncvar_get(ncf,varid = "EOS")
     ncthresh<-ncvar_get(ncf,varid = "THESHOLD")
     nc_close(ncf)
     sos[,i]<-ncsos
+    pos[,i]<-ncpos
     eos[,i]<-nceos
     thresh[,i]<-ncthresh
   }
   lgs<-eos-sos
   calculate_stat(sos,paste("./analysis/VI_SOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(pos,paste("./analysis/VI_POS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(eos,paste("./analysis/VI_EOS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(lgs,paste("./analysis/VI_LGS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(thresh,paste("./analysis/VI_THRESH_30N_",indi,"_stat.nc",sep=""))
@@ -95,6 +103,40 @@ stat_dataset(indicator[1])
 #### fixed threshold for each year
 
 stat_dataset(indicator[2])
+
+
+################## ###------------------------------------
+### to get the PM based phenology 
+
+
+
+setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
+
+pheno_files<-list.files(paste("./pheno_VI_hd_PM/",sep=""),pattern=".nc",full.names = T)
+sos<-array(NA,dim=c(86400,14))
+pos<-array(NA,dim=c(86400,14))
+eos<-array(NA,dim=c(86400,14))
+lgs<-array(NA,dim=c(86400,14))
+thresh<-array(NA,dim=c(86400,14))
+
+for (i in 1:length(pheno_files)){
+  ncf<-nc_open(pheno_files[i])
+  ncsos<-ncvar_get(ncf,varid = "SOS")
+  ncpos<-ncvar_get(ncf,varid = "POS")
+  nceos<-ncvar_get(ncf,varid = "EOS")
+  #ncthresh<-ncvar_get(ncf,varid = "THESHOLD_EOS")
+  nc_close(ncf)
+  sos[,i]<-ncsos
+  pos[,i]<-ncpos
+  eos[,i]<-nceos
+  #thresh[,i]<-ncthresh
+}
+lgs<-eos-sos
+calculate_stat(sos,paste("./analysis/VI_SOS_30N_PM_stat.nc",sep=""))
+calculate_stat(pos,paste("./analysis/VI_POS_30N_PM_stat.nc",sep=""))
+calculate_stat(eos,paste("./analysis/VI_EOS_30N_PM_stat.nc",sep=""))
+calculate_stat(lgs,paste("./analysis/VI_LGS_30N_PM_stat.nc",sep=""))
+#calculate_stat(thresh,paste("./analysis/VI_THRESH_30N_PM_stat.nc",sep=""))
 
 
 

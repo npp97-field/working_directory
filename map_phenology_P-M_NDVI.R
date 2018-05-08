@@ -20,14 +20,14 @@ get_two_threshold<-function(ts){
 
 extract_phenology<-function(ts_thresh){
   if (is.na(sum(ts_thresh[24:25]))){
-    return(c(NA,NA))
+    return(c(NA,NA,NA))
   }
   sos_thresh<-ts_thresh[24]
   eos_thresh<-ts_thresh[25]
   #### fit the ts with a 6 order polynomial
   doy<-0.5:22.5
   if (sum(!is.na(ts_thresh[1:23]))<=6){
-    return(c(NA,NA))
+    return(c(NA,NA,NA))
   }
   ts_thresh[1:23]<-na.fill(ts_thresh[1:23],fill="extend")
   ts_fit<-lm(ts_thresh[1:23]~poly(doy,6,raw=T))
@@ -35,11 +35,13 @@ extract_phenology<-function(ts_thresh){
   predicted<-b[1] + poly(1:365/16,6,raw=T)%*%b[-1]
   ### get the date
   peak<-max(predicted,na.rm=T)
+
   if (is.infinite(peak)){
-    return(c(NA,NA))
+    return(c(NA,NA,NA))
   }
-  increase<-c(rep(1,which(predicted==peak)[1]),rep(0,365-which(predicted==peak)[1]))
-  decrease<-c(rep(0,which(predicted==peak)[1]-1),rep(1,365-which(predicted==peak)[1]+1))
+  pos<-which(predicted==peak)[1]
+  increase<-c(rep(1,pos),rep(0,365-pos))
+  decrease<-c(rep(0,pos-1),rep(1,365-pos+1))
   if (peak<sos_thresh){
     sos_acc<-NA
   }else{
@@ -52,7 +54,7 @@ extract_phenology<-function(ts_thresh){
     eos_int<-min(which(predicted<eos_thresh&decrease))-1
     eos_acc<-eos_int+(predicted[eos_int]-eos_thresh)/(predicted[eos_int]-predicted[eos_int+1])
   }
-  return(c(sos_acc,eos_acc))
+  return(c(sos_acc,pos,eos_acc))
 }
 # for (j in 1:86400){
 #   extract_phenology(year_with_thresh[j,])
@@ -72,6 +74,7 @@ export_nc<-function(outdata,outfile){
   dimlat<-ncdim_def('latitude','deg',lat)
   dimlong<-ncdim_def('longitude','deg',long)
   ncsos<-ncvar_def('SOS','NA',list(dimlong,dimlat),-9999,longname="start of season",prec='float',compression=9)
+  ncpos<-ncvar_def('POS','NA',list(dimlong,dimlat),-9999,longname="peak of season",prec='float',compression=9)
   nceos<-ncvar_def('EOS','',list(dimlong,dimlat),-9999,longname="end of season",prec='float',compression=9)
   ncsos_t<-ncvar_def('THESHOLD SOS','',list(dimlong,dimlat),-9999,longname="threshold of SOS",prec='float',compression=9)
   nceos_t<-ncvar_def('THESHOLD EOS','',list(dimlong,dimlat),-9999,longname="threshold of EOS",prec='float',compression=9)
@@ -80,13 +83,14 @@ export_nc<-function(outdata,outfile){
     file.remove(outfile)
   }
   
-  ncout<-nc_create(outfile,list(ncsos,nceos,ncsos_t,nceos_t))
+  ncout<-nc_create(outfile,list(ncsos,ncpos,nceos,ncsos_t,nceos_t))
   
-  dim(outdata)<-c(4,720,120)
+  dim(outdata)<-c(5,720,120)
   ncvar_put(ncout,varid=ncsos,outdata[1,,])
-  ncvar_put(ncout,varid=nceos,outdata[2,,])
-  ncvar_put(ncout,varid=ncsos_t,outdata[3,,])
-  ncvar_put(ncout,varid=nceos_t,outdata[4,,])
+  ncvar_put(ncout,varid=ncpos,outdata[2,,])
+  ncvar_put(ncout,varid=nceos,outdata[3,,])
+  ncvar_put(ncout,varid=ncsos_t,outdata[4,,])
+  ncvar_put(ncout,varid=nceos_t,outdata[5,,])
   nc_close(ncout)
 }
 
@@ -116,7 +120,7 @@ for (i in 1:length(vi_files)){
   year_with_thresh<-cbind(year_ndvi,t(NDVIthresh))
   #sos_eos<-apply(year_with_thresh,1,extract_phenology)
   sos_eos<-parRapply(cl,year_with_thresh,extract_phenology)
-  dim(sos_eos)<-c(2,86400)
+  dim(sos_eos)<-c(3,86400)
   ### export to nc file
   outfile<-paste("./PROJECT/SIF_phenology/pheno_VI_hd_PM/VI_SOS_EOS_PM_",i+2002,".nc",sep="")
   outdata<-rbind(sos_eos,NDVIthresh)

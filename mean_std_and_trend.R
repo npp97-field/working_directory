@@ -67,6 +67,7 @@ indicator<-c('var','fixed')
 stat_dataset<-function(indi){
   pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold/",sep=""),pattern=".nc",full.names = T)
   sos<-array(NA,dim=c(86400,14))
+  pos<-array(NA,dim=c(86400,14))
   eos<-array(NA,dim=c(86400,14))
   lgs<-array(NA,dim=c(86400,14))
   thresh<-array(NA,dim=c(86400,14))
@@ -74,14 +75,18 @@ stat_dataset<-function(indi){
   for (i in 1:length(pheno_files)){
     ncf<-nc_open(pheno_files[i])
     ncsos<-ncvar_get(ncf,varid = "SOS")
+    ncpos<-ncvar_get(ncf,varid = "POS")
     nceos<-ncvar_get(ncf,varid = "EOS")
     ncthresh<-ncvar_get(ncf,varid = "THESHOLD")
     nc_close(ncf)
     sos[,i]<-ncsos
+    pos[,i]<-ncpos
     eos[,i]<-nceos
     thresh[,i]<-ncthresh
   }
   lgs<-eos-sos
+  calculate_stat(sos,paste("./analysis/SOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(pos,paste("./analysis/POS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(sos,paste("./analysis/SOS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(eos,paste("./analysis/EOS_30N_",indi,"_stat.nc",sep=""))
   calculate_stat(lgs,paste("./analysis/LGS_30N_",indi,"_stat.nc",sep=""))
