@@ -236,7 +236,7 @@ nc_out_f2<-"./PROJECT/SIF_phenology/analysis/pcor_sos_csif_s2p.nc"
 
 pcor_coef<-ncvar_def("pcor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 pcor_pv<-ncvar_def("pcor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
-ncout<-nc_create(nc_out_f1,list(pcor_coef,pcor_pv))
+ncout<-nc_create(nc_out_f2,list(pcor_coef,pcor_pv))
 ncvar_put(ncout,pcor_coef,p_coef)
 ncvar_put(ncout,pcor_pv,p_pv)
 nc_close(ncout)
@@ -254,11 +254,11 @@ p_pv<-pcor_sos_eos[2,]
 p_pv[is.nan(p_pv)]<- -999.9
 dim(p_pv)<-c(720,120)
 
-nc_out_f1<-"./PROJECT/SIF_phenology/analysis/pcor_sos_eos.nc"
+nc_out_f3<-"./PROJECT/SIF_phenology/analysis/pcor_sos_eos.nc"
 
 pcor_coef<-ncvar_def("pcor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 pcor_pv<-ncvar_def("pcor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
-ncout<-nc_create(nc_out_f1,list(pcor_coef,pcor_pv))
+ncout<-nc_create(nc_out_f3,list(pcor_coef,pcor_pv))
 ncvar_put(ncout,pcor_coef,p_coef)
 ncvar_put(ncout,pcor_pv,p_pv)
 nc_close(ncout)
