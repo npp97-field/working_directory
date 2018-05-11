@@ -81,6 +81,7 @@ sif_pheno<-list.files("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/",full.n
 
 sos_file<-"./PROJECT/SIF_phenology/analysis/SIF_SOS_30N_fixed_stat.nc"
 eos_file<-"./PROJECT/SIF_phenology/analysis/SIF_EOS_30N_fixed_stat.nc"
+pos_file<-"./PROJECT/SIF_phenology/analysis/SIF_POS_30N_var_stat.nc"
 
 ##### get average EOS and SOS
 eos_f<-nc_open(eos_file)
@@ -89,8 +90,13 @@ nc_close(eos_f)
 sos_f<-nc_open(sos_file)
 sos<-round(ncvar_get(sos_f,varid="MEAN")*12+0.5)
 nc_close(sos_f)
+pos_f<-nc_open(pos_file)
+pos<-round(ncvar_get(pos_f,varid="MEAN")*12+0.5)
+nc_close(pos_f)
+
 dim(eos)<-c(86400,1)
 dim(sos)<-c(86400,1)
+dim(pos)<-c(86400,1)
 
 get_cru_var<-function(var_name){
   var_f<-list.files('./DATA/CRU_TS401/',full.names = T,pattern = paste(var_name,".dat.nc",sep=""))
@@ -138,6 +144,12 @@ for (year in 2003:2016){
   temp_dat<-cbind(tmean_year,sos,eos)
   gowning_temp<-apply(temp_dat,1,get_mean)
   
+  prec_dat<-cbind(precip_year,sos,pos)
+  half_precip<-apply(prec_dat,1,get_total)
+  
+  temp_dat<-cbind(tmean_year,sos,pos)
+  half_temp<-apply(temp_dat,1,get_mean)
+  
   ### write data to pheno
   year_pheno<-sif_pheno[substr(basename(sif_pheno),19,22)==year]
   phenoin<-nc_open(year_pheno,write=T)
@@ -146,14 +158,22 @@ for (year in 2003:2016){
   
   grow_precip<-ncvar_def("grow_precip",'',list(xdim2,ydim2),-9999,compression=9)
   grow_temp<-ncvar_def("grow_temp",'',list(xdim2,ydim2),-9999,compression=9)
+  first_precip<-ncvar_def("first_precip",'',list(xdim2,ydim2),-9999,compression=9)
+  first_temp<-ncvar_def("first_temp",'',list(xdim2,ydim2),-9999,compression=9)
   tryCatch({
     ncvar_add(phenoin,v = grow_precip)
     ncvar_add(phenoin,v = grow_temp)
-    },error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  },error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  tryCatch({
+    ncvar_add(phenoin,v = first_precip)
+    ncvar_add(phenoin,v = first_temp)
+  },error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
   nc_close(phenoin)
   phenoin<-nc_open(year_pheno,write=T)
   ncvar_put(phenoin,grow_precip,gowning_precip)
   ncvar_put(phenoin,grow_temp,gowning_temp)
+  ncvar_put(phenoin,first_precip,half_precip)
+  ncvar_put(phenoin,first_temp,half_temp)
   nc_close(phenoin)
 }
 
@@ -179,17 +199,22 @@ calculate_partial_correlation<-function(dat){
 p2s_csif<-array(NA,dim=c(86400,14))
 s2p_csif<-array(NA,dim=c(86400,14))
 sos<-array(NA,dim=c(86400,14))
+eos<-array(NA,dim=c(86400,14))
 tmean<-array(NA,dim=c(86400,14))
 precip<-array(NA,dim=c(86400,14))
-eos<-array(NA,dim=c(86400,14))
+h_tmean<-array(NA,dim=c(86400,14))
+h_precip<-array(NA,dim=c(86400,14))
+
 
 for (year in 2003:2016){
   year_pheno<-sif_pheno[substr(basename(sif_pheno),19,22)==year]
   phenoin<-nc_open(year_pheno,write=T)
   p2s_csif[,year-2002]<-ncvar_get(phenoin,'p2s_csif')
-  s2p_csif[,year-2002]<-ncvar_get(phenoin,'p2s_csif')
+  s2p_csif[,year-2002]<-ncvar_get(phenoin,'s2p_csif')
   tmean[,year-2002]<-ncvar_get(phenoin,'grow_temp')
   precip[,year-2002]<-ncvar_get(phenoin,'grow_precip')
+  h_tmean[,year-2002]<-ncvar_get(phenoin,'first_temp')
+  h_precip[,year-2002]<-ncvar_get(phenoin,'first_precip')
   sos[,year-2002]<-ncvar_get(phenoin,'SOS')*365+2.5
   eos[,year-2002]<-ncvar_get(phenoin,'EOS')*365+2.5
   xdim<-phenoin$dim[["longitude"]]
@@ -221,7 +246,7 @@ nc_close(ncout)
 
 ##########calculate the pcor between sos and csif_S2P
 
-sos_csif<-cbind(sos,s2p_csif,tmean,precip)
+sos_csif<-cbind(sos,s2p_csif,h_tmean,h_precip)
 sos_csif[sos_csif< -990]<-NA
 
 pcor_sos_csif<-apply(sos_csif,1,calculate_partial_correlation)
@@ -263,3 +288,36 @@ ncvar_put(ncout,pcor_coef,p_coef)
 ncvar_put(ncout,pcor_pv,p_pv)
 nc_close(ncout)
 
+
+############################
+####  calculate correlation between sos and csif_start to peak
+##############
+##########calculate the pcor between sos and csif_S2P
+library(ncdf4)
+calculate_correlation<-function(dat){
+  if (sum(is.na(dat))>=1)
+    return(c(NA,NA))
+  dim(dat)<-c(14,2)
+  cor_re<-cor.test(dat[,1],dat[,2],method="pearson")
+  return(c(cor_re$estimate,cor_re$p.value))
+}
+
+sos_csif<-cbind(sos,s2p_csif)
+sos_csif[sos_csif< -990]<-NA
+
+corsos_csif<-apply(sos_csif,1,calculate_correlation)
+coef<-corsos_csif[1,]
+coef[is.nan(coef)]<- -999.9
+dim(coef)<-c(720,120)
+pv<-corsos_csif[2,]
+pv[is.nan(pv)]<- -999.9
+dim(pv)<-c(720,120)
+
+nc_out_f2<-"./PROJECT/SIF_phenology/analysis/cor_sos_csif_s2p.nc"
+
+cor_coef<-ncvar_def("cor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
+cor_pv<-ncvar_def("cor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
+ncout<-nc_create(nc_out_f2,list(cor_coef,cor_pv))
+ncvar_put(ncout,cor_coef,coef)
+ncvar_put(ncout,cor_pv,pv)
+nc_close(ncout)
