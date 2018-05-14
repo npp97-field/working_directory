@@ -50,8 +50,8 @@
 # site_no<-dim(site_list)[1]
 # csif<-as.data.frame(array(NA,dim=c(length(ncfiles),site_no+1)))
 # names(csif)<-c("DATE",site_list$SITE_ID)
-# csif$DATE<-unlist(strsplit(basename(ncfiles),"[.]"))[(1:1288)*6-1]
-# for (i in 1:1288){
+# csif$DATE<-unlist(strsplit(basename(ncfiles),"[.]"))[(1:1549)*6-1]
+# for (i in 1:1549){
 #   ncf<-nc_open(ncfiles[i])
 #   csif[i,2:(site_no+1)]<-ncvar_get(ncf,"CSIF")
 #   nc_close(ncf)
@@ -66,7 +66,7 @@ gpp_f<-list.files("./retrieve_site/EC_4day/",full.names = T)
 sif<-read.csv("./retrieve_site/sites166_with_CSIF.csv",stringsAsFactors = F)
 sites<-gsub('\\.','-',names(sif)[2:(dim(sif)[2])])
 names(sif)<-c("DATE",sites)
-site_list<-read.csv("./retrieve_site/sites_30N.csv",stringsAsFactors = F)
+site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
 site_list<-site_list[site_list$LOCATION_LAT>=30,]
 site_no<-dim(site_list)[1]
 

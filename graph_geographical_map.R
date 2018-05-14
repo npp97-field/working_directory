@@ -14,8 +14,8 @@ lc_col<-c("palegreen4","yellowgreen","lightseagreen",
 # site_no<-dim(site_list)[1]
 # write.csv(site_list,"./retrieve_site/sites_35N.csv",row.names = F)
 setwd("/Users/yzhang/Project/SIF_phenology/")
-site_list<-read.csv("./retrieve_site/sites_30N.csv",stringsAsFactors = F)
-site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.25_N30.csv",stringsAsFactors = F)
+site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
+site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3_N30.csv",stringsAsFactors = F)
 site_phenology_used<-site_phenology[!is.na(site_phenology$sos_gpp),]
 
 comb_f<-list.files("./retrieve_site/combined/",full.names = T)
@@ -104,7 +104,7 @@ coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
 cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/site_loc_0.25_30N.pdf",width=11,height=11)
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/site_loc_mcd_0.3_30N.pdf",width=11,height=11)
 
 #### -----------------------------------------
 ##  a
