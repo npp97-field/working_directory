@@ -41,29 +41,42 @@
 
 ###-------------------------------------------------------------------
 ###  get DOY nc file
-# ###
-# setwd("/Users/yzhang/Project/SIF_phenology/")
+###
+setwd("/Users/yzhang/Project/SIF_phenology/")
+library(ncdf4)
 # #### first, read the data of CSIF from nc files
 # #site_list<-read.csv("./retrieve_site/sites_passed_heterogeneity_test.csv",stringsAsFactors = F)
 # site_list<-read.csv("./retrieve_site/Site_information_tier1.csv",stringsAsFactors = F)
-# ncfiles<-list.files("./retrieve_site/retrieved_CSIF/",full.names = T)
+# #ncfiles<-list.files("./retrieve_site/retrieved_CSIF_clear_BISE/",full.names = T)
+# ncfiles<-list.files("./retrieve_site/retrieved_CSIF_all_BISE/",full.names = T)
 # site_no<-dim(site_list)[1]
-# csif<-as.data.frame(array(NA,dim=c(length(ncfiles),site_no+1)))
+# csif<-as.data.frame(array(NA,dim=c(1564,site_no+1)))
+# 
+# nfiles<-length(ncfiles)
 # names(csif)<-c("DATE",site_list$SITE_ID)
-# csif$DATE<-unlist(strsplit(basename(ncfiles),"[.]"))[(1:1549)*6-1]
-# for (i in 1:1549){
-#   ncf<-nc_open(ncfiles[i])
-#   csif[i,2:(site_no+1)]<-ncvar_get(ncf,"CSIF")
+# csif$DATE<-rep(2001:2017,each=92)*1000+rep((1:92)*4-3,17)
+# nc_doy<-as.numeric(unlist(strsplit(basename(ncfiles),"[.]"))[(1:nfiles)*6-1])
+# for (i in 1:1564){
+#   ncfile<-ncfiles[nc_doy==csif$DATE[i]]
+#   if(length(ncfile)==0)
+#     next
+#   ncf<-nc_open(ncfile)
+#   #sif_doy<-ncvar_get(ncf,"CSIF_daily")
+#   sif_doy<-ncvar_get(ncf,"CSIF")
+#   sif_doy[sif_doy>5|sif_doy< -5]<-0
+#   csif[i,2:(site_no+1)]<-sif_doy
 #   nc_close(ncf)
 # }
-# write.csv(csif,"./retrieve_site/sites166_with_CSIF.csv",row.names = F)
+# #write.csv(csif,"./retrieve_site/sites166_with_CSIF_daily_clear_BISE.csv",row.names = F)
+# write.csv(csif,"./retrieve_site/sites166_with_CSIF_daily_all_BISE.csv",row.names = F)
 # ###
 
 ###--------------------------------------------------------------------
 ###       
 setwd("/Users/yzhang/Project/SIF_phenology/")
 gpp_f<-list.files("./retrieve_site/EC_4day/",full.names = T)
-sif<-read.csv("./retrieve_site/sites166_with_CSIF.csv",stringsAsFactors = F)
+#sif<-read.csv("./retrieve_site/sites166_with_CSIF_daily_clear_BISE.csv",stringsAsFactors = F)
+sif<-read.csv("./retrieve_site/sites166_with_CSIF_daily_all_BISE.csv",stringsAsFactors = F)
 sites<-gsub('\\.','-',names(sif)[2:(dim(sif)[2])])
 names(sif)<-c("DATE",sites)
 site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
@@ -80,7 +93,7 @@ cloud_data<-read.csv('./retrieve_site/MOD13C1/cloud_data.csv',stringsAsFactors =
 
 igbp<-unique(site_list$IGBP)
 for (i in igbp){
-  dir.create(paste("./retrieve_site/graph_ts/",i,sep=""))
+  dir.create(paste("./retrieve_site/graph_ts_all/",i,sep=""))
 }
 
 
@@ -103,8 +116,9 @@ for (i in 1:site_no){
   ##### plot the graph here
   if (dim(combined)[1]==0|sum(!is.na(combined[,2]))==0|sum(combined$NEE_VUT_REF_QC>=0.8)==0)
     next
-  combined[combined[,2]< -800,2]<-NA
-  pdf(paste("./retrieve_site/graph_ts/",site_list$IGBP[i],'/',site_list$SITE_ID[i],'_',site_list$IGBP[i],
+  
+  #combined[combined[,2]< -800,2]<-NA
+  pdf(paste("./retrieve_site/graph_ts_all/",site_list$IGBP[i],'/',site_list$SITE_ID[i],'_',site_list$IGBP[i],
             "_GPP_SIF_graph.pdf",sep=""),width=12,height=8)
   par(fig=c(0,0.7,0.5,1),mar=c(3.5,3.5,1,2),mgp=c(3,0.5,0))
   time_ts<-strptime(combined$DATE,"%Y%j")
@@ -165,6 +179,6 @@ for (i in 1:site_no){
   text(0,0,pos=4,substitute(paste("y=",a,"x",sep=""),list(a=round(reg2$coefficients[1],2))))
   
   dev.off()
-  write.csv(combined,paste("./retrieve_site/combined/",site_list$SITE_ID[i],"_SIF_GPP_VI.csv",sep=""))
+  write.csv(combined,paste("./retrieve_site/combined_all/",site_list$SITE_ID[i],"_SIF_GPP_VI.csv",sep=""))
 }
 
