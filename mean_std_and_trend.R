@@ -66,11 +66,11 @@ indicator<-c('var','fixed')
 
 stat_dataset<-function(indi){
   pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold/",sep=""),pattern=".nc",full.names = T)
-  sos<-array(NA,dim=c(86400,14))
-  pos<-array(NA,dim=c(86400,14))
-  eos<-array(NA,dim=c(86400,14))
-  lgs<-array(NA,dim=c(86400,14))
-  thresh<-array(NA,dim=c(86400,14))
+  sos<-array(NA,dim=c(86400,length(pheno_files)))
+  pos<-array(NA,dim=c(86400,length(pheno_files)))
+  eos<-array(NA,dim=c(86400,length(pheno_files)))
+  lgs<-array(NA,dim=c(86400,length(pheno_files)))
+  thresh<-array(NA,dim=c(86400,length(pheno_files)))
   
   for (i in 1:length(pheno_files)){
     ncf<-nc_open(pheno_files[i])
@@ -85,17 +85,16 @@ stat_dataset<-function(indi){
     thresh[,i]<-ncthresh
   }
   lgs<-eos-sos
-  calculate_stat(sos,paste("./analysis/SOS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(pos,paste("./analysis/POS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(sos,paste("./analysis/SOS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(eos,paste("./analysis/EOS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(lgs,paste("./analysis/LGS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(thresh,paste("./analysis/THRESH_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(sos,paste("./analysis/all_daily_SOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(pos,paste("./analysis/all_daily_POS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(eos,paste("./analysis/all_daily_EOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(lgs,paste("./analysis/all_daily_LGS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(thresh,paste("./analysis/all_daily_THRESH_30N_",indi,"_stat.nc",sep=""))
 }
 
 #### variable threshold for each year
 
-stat_dataset(indicator[1])
+#stat_dataset(indicator[1])
 
 #### fixed threshold for each year
 

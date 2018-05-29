@@ -101,6 +101,14 @@ for (i in 1:site_no){
   site_GPP_data<-read.csv(gpp_f[substr(basename(gpp_f),1,6)==site_list$SITE_ID[i]],stringsAsFactors = F)
   TIME_DOY<-format(strptime(site_GPP_data$TIMESTAMP,"%Y%m%d"),"%Y%j")
   gpp_dat<-cbind(TIME_DOY,site_GPP_data)
+  ##############
+  years_GPP<-unique(floor(site_GPP_data$TIMESTAMP/10000))
+  years_GPP<-years_GPP[!is.na(years_GPP)]
+  GPP_DATE<-rep(years_GPP,each=92)*1000+rep(1:92*4-3,length(years_GPP))
+  GPP_time_frame<-data.frame(GPP_DATE)
+  #############
+  GPP_dat_formated<-merge(GPP_time_frame,gpp_dat,by.x='GPP_DATE',by.y="TIME_DOY",all.x=T)
+  GPP_dat_formated$NEE_VUT_REF_QC[is.na(GPP_dat_formated$NEE_VUT_REF_QC)]<-0
   site_SIF_dat<-subset(sif,select=c("DATE",site_list$SITE_ID[i]))
   ##### with snow 0   with aerosol 0  with cloud 1
   site_ndvi<-subset(ndvi_data,select=c("date",gsub('-','.',site_list$SITE_ID[i])))
@@ -111,7 +119,7 @@ for (i in 1:site_no){
   names(site_vi_dat)<-c("date",'ndvi','evi','snow','aerosol','cloud')
   site_vi_dat[!site_vi_dat$aerosol&site_vi_dat$cloud,c(2,3)]<-NA
   
-  combined1<-merge(site_SIF_dat,gpp_dat,by.x="DATE",by.y="TIME_DOY")
+  combined1<-merge(site_SIF_dat,GPP_dat_formated,by.x="DATE",by.y="GPP_DATE")
   combined<-merge(combined1,site_vi_dat,by.x="DATE",by.y='date',all.x=T)
   ##### plot the graph here
   if (dim(combined)[1]==0|sum(!is.na(combined[,2]))==0|sum(combined$NEE_VUT_REF_QC>=0.8)==0)

@@ -5,12 +5,12 @@ library(ncdf4)
 library(parallel)
 ###
 setwd("/rigel/glab/users/zy2309/")
-year_files<-list.files("./DATA/all_daily_SIF_4day_HD/",full.names = T)
+year_files<-list.files("./DATA/all_daily_SIF_4day_HD_BISE/",full.names = T)
 ##read the theshold from each year
-phenology_files<-list.files("./PROJECT/SIF_phenology/pheno_hd_var_threshold/",pattern="30N",full.names = T)
+#phenology_files<-list.files("./PROJECT/SIF_phenology/pheno_hd_var_threshold/",pattern="30N",full.names = T)
 #plot(1:255,pch=16,cex=2,col=lst_color_ramp)
 
-years<-2003:2016
+years<-2001:2016
 #years=2003
 
 retrieve_pheno_fix<-function(xt){
@@ -24,11 +24,11 @@ retrieve_pheno_fix<-function(xt){
     trough <- max(min(var_ts, na.rm=TRUE),0)
     ampl <- peak - trough
     if (peak<=0|peak<thresh_val){
-      return(c(-9999,-9999,-9999))
+      return(c(-9999,-9999,-9999,-9999))
     }
-    
-    increase<-c(rep(1,which(var_ts==peak)),rep(0,n-which(var_ts==peak)))
-    decrease<-c(rep(0,which(var_ts==peak)-1),rep(1,n-which(var_ts==peak)+1))
+    pos<-which(var_ts==peak)
+    increase<-c(rep(1,pos),rep(0,n-pos))
+    decrease<-c(rep(0,pos-1),rep(1,n-pos+1))
     
     
     sos_acc<- -9999
@@ -41,17 +41,10 @@ retrieve_pheno_fix<-function(xt){
     eos_int<-min(which(var_ts<thresh_val&decrease))-1
     eos_acc<-eos_int+(var_ts[eos_int]-thresh_val)/(var_ts[eos_int]-var_ts[eos_int+1])
     
-    return(c((sos_acc-1)/n,(eos_acc-1)/n,thresh_val))
+    return(c((sos_acc-1)/n,which(var_ts==peak)/n,(eos_acc-1)/n,thresh_val))
   }
-  x<-xt[1:92]
-  x[is.nan(x)]<-NA
-  x[x< -5]<-NA
-  if (sum(is.na(x))>20|is.na(thresh_val)){
-    return(c(-9999,-9999,-9999))
-  }
-  x_fill<-na.fill(x,fill = "extend")
-  sp_fit<-smooth.spline(x_fill,df=9)
-  phen<-extract_thresh(sp_fit$y,thresh_val)
+  
+  phen<-extract_thresh(xt[1:92],thresh_val)
   return(as.vector(phen))
 }
 
@@ -69,30 +62,47 @@ export_nc<-function(pheno_dat,outfile){
   
   dimlat<-ncdim_def('latitude','deg',lat)
   dimlong<-ncdim_def('longitude','deg',long)
-  ncsos<-ncvar_def('SOS','NA',list(dimlong,dimlat),-9999,longname="start of season",prec='float',compression=9)
+  ncsos<-ncvar_def('SOS','',list(dimlong,dimlat),-9999,longname="start of season",prec='float',compression=9)
+  ncpos<-ncvar_def('POS','',list(dimlong,dimlat),-9999,longname="peak of season",prec='float',compression=9)
   nceos<-ncvar_def('EOS','',list(dimlong,dimlat),-9999,longname="end of season",prec='float',compression=9)
   ncthr<-ncvar_def('THESHOLD','',list(dimlong,dimlat),-9999,longname="threshold of CSIF",prec='float',compression=9)
   
-  ncout<-nc_create(outfile,list(ncsos,nceos,ncthr))
+  ncout<-nc_create(outfile,list(ncsos,ncpos,nceos,ncthr))
   ncvar_put(ncout,varid=ncsos,pheno_dat[1,,])
-  ncvar_put(ncout,varid=nceos,pheno_dat[2,,])
-  ncvar_put(ncout,varid=ncthr,pheno_dat[3,,])
+  ncvar_put(ncout,varid=ncpos,pheno_dat[2,,])
+  ncvar_put(ncout,varid=nceos,pheno_dat[3,,])
+  ncvar_put(ncout,varid=ncthr,pheno_dat[4,,])
   nc_close(ncout)
 }
 
-### get the threshold
-annual_threshold<-array(NA, dim=c(86400,14))
-for(i in 1:length(phenology_files)){
-  year<-substr(basename(phenology_files[i]),20,23)
-  ncf<-nc_open(phenology_files[i])
-  ncdat<-ncvar_get(ncf,varid = "THESHOLD")
-  nc_close(ncf)
-  #yeardata<-ncdat[,241:360,]
-  ## get the threshold 
-  annual_threshold[,i]<-ncdat
+### get the threshold 
+### to be consistent with the site level-method. modified on May 25th 2018
+get_threshold<-function(var_ts,thresh=0.3){
+  peak <- max(var_ts, na.rm=TRUE)
+  trough<-max(min(var_ts, na.rm=TRUE),0)
+  if (trough<0.1*peak){
+    trough<-0
+  }
+  ampl <- peak - trough
+  if (peak<=0){
+    return(-9999)
+  }
+  thresh_val<- -9999
+  thresh_val<-trough+thresh*ampl
+  return(thresh_val)
 }
-annual_threshold[annual_threshold< -100]<-NA
-multiyear_threshold<-apply(annual_threshold,1,mean,na.rm=T)
+
+####smooth SIF for each year
+smooth_SIF<-function(var_ts){
+  var_ts[is.nan(var_ts)]<-NA
+  var_ts[var_ts< -3|var_ts>3]<-NA
+  if (sum(is.na(var_ts))>20){
+    return(rep(-9999,length(var_ts)))
+  }
+  x_fill<-na.fill(var_ts,fill = "extend")
+  sp_fit<-smooth.spline(x_fill,df=9)
+  return(sp_fit$y)
+}
 
 #yeardata<-array(NA,dim=c(7200*1200,92))
 cl<-makeCluster(getOption("cl.cores",6))
@@ -100,6 +110,8 @@ clusterEvalQ(cl, {
   library(zoo)
 })
 
+# first get annual smoothed VI and get threshold
+smoothed_CSIF<-array(NA,dim=c(86400,92*length(year_files)))
 for(i in 1:length(year_files)){
   year<-substr(basename(year_files[i]),20,23)
   ncf<-nc_open(year_files[i])
@@ -107,12 +119,21 @@ for(i in 1:length(year_files)){
   nc_close(ncf)
   yeardata<-ncdat[,241:360,]
   dim(yeardata)<-c(86400,92)
-  yeardata_with_thresh<-cbind(yeardata,multiyear_threshold)
+  year_smoothed<-parRapply(cl,yeardata,smooth_SIF)
+  dim(year_smoothed)<-c(92,86400)
+  smoothed_CSIF[,(i*92-91):(i*92)]<-t(year_smoothed)
+}
+multiyear_threshold<-parRapply(cl,smoothed_CSIF,get_threshold)
+
+
+for(i in 1:length(year_files)){
+  year<-substr(basename(year_files[i]),20,23)
+  yeardata_with_thresh<-cbind(smoothed_CSIF[,(i*92-91):(i*92)],multiyear_threshold)
   sif_pheno<-parRapply(cl,yeardata_with_thresh,retrieve_pheno_fix)
   #sif_pheno<-apply(yeardata_with_thresh,1,retrieve_pheno_fix)
   #sif_res<-unlist(sif_pheno)
-  dim(sif_pheno)<-c(3,720,120)
-  outfile<-paste("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/SOS_EOS_threshold_",year,".nc",sep="")
+  dim(sif_pheno)<-c(4,720,120)
+  outfile<-paste("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/all_daily_SOS_POS_EOS_threshold_",year,".nc",sep="")
   if(file.exists(outfile))
     file.remove(outfile)
   export_nc(sif_pheno,outfile)
