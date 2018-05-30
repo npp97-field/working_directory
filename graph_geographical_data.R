@@ -16,8 +16,8 @@ longlat <-  CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0
 ae<-"+proj=aeqd +lat_0=90 +lon_0=-0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 
 
-k=1
-indicator<-c("VI",'SIF')
+k=2
+indicator<-c("VI",'all_daily')
 indi<-indicator[k]
 
 plot_lat<-function(lat){
@@ -213,7 +213,7 @@ par(fig=c(0,1,0,1),new=T)
 plot(NA,axes=F,xlim=c(-1,1),ylim=c(-1.5,1.5),xaxs="i",yaxs='i')
 text(-0.03, 1.02, labels = 'DOY', xpd = T, srt = -90,cex=1.1)     
 text(-0.03, 0, labels = 'DOY', xpd = NA, srt = -90,cex=1.1)
-text(-0.03,-1.03, labels = 'DOY', xpd = NA, srt = -90,cex=1.1)
+text(-0.03,-1.03, labels = 'Days', xpd = NA, srt = -90,cex=1.1)
 text(0.97, 1.02, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1) 
 text(0.97, 0, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1)    
 text(0.97, -1.03, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1)
