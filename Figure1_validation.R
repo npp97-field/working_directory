@@ -15,7 +15,7 @@ lc_col<-c("palegreen4","yellowgreen","lightseagreen",
 # write.csv(site_list,"./retrieve_site/sites_35N.csv",row.names = F)
 setwd("/Users/yzhang/Project/SIF_phenology/")
 site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
-site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3_N30.csv",stringsAsFactors = F)
+site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3_N30_all_daily.csv",stringsAsFactors = F)
 site_phenology_used<-site_phenology[!is.na(site_phenology$sos_gpp),]
 
 ######get the interannual variability
@@ -37,7 +37,7 @@ for(i in 1:length(iav_sites)){
 ano_pheno<-ano_pheno[!is.na(ano_pheno$site),]
 
 
-comb_f<-list.files("./retrieve_site/combined/",full.names = T)
+comb_f<-list.files("./retrieve_site/combined_all/",full.names = T)
 for (i in 1:length(site_list$SITE_ID)){
   temp<-read.csv(comb_f[substr(basename(comb_f),1,6)==site_list$SITE_ID[i]],header = T)
   names(temp)[3]<-"CSIF"
@@ -53,9 +53,9 @@ for (i in 1:length(site_list$SITE_ID)){
   combined_data<-rbind(combined_data,data_used)
 }
 
-write.csv(combined_data,"./retrieve_site/analysis/combined_all_sites_data.csv",row.names = F)
+write.csv(combined_data,"./retrieve_site/analysis/combined_sites_data_all.csv",row.names = F)
 
-comb_data<-read.csv("./retrieve_site/analysis/combined_all_sites_data.csv",stringsAsFactors = F)
+comb_data<-read.csv("./retrieve_site/analysis/combined_sites_data_all.csv",stringsAsFactors = F)
 good_obs<-comb_data[comb_data$NEE_VUT_REF_QC>0.8,]
 
 lc_pch<-1:length(lc_type)
@@ -75,7 +75,7 @@ plot_lat<-function(lat){
   
   lati <- cbind(easts, norths)	
   lati <- rbind(lati, lati[1,])	# creates a matrix with two colums
-  proj_lat <- SpatialPolygons(list(Polygons(list(Polygon(lati)), 1)))	# create a polgon from this matrix
+  proj_lat <- SpatialPolygons(list(Polygons(list(Polygon(lati)), 1)))	# create a polygon from this matrix
   proj4string(proj_lat) <- longlat
   replat<-spTransform(proj_lat,ae)
   return(replat)
@@ -119,18 +119,26 @@ border<-plot_lat(30)
 lat60<-plot_lat(60)
 
 ### coastlines
-coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
-cropcoast<-crop(coastline,extent(-180,180,30,90))
-repcoa<-spTransform(cropcoast,ae)
+library(rgdal)
+library(maptools)
+library(rgeos)
+library(raster)
+land<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_land.shp")#ne_110m_coastline.shp")
+repland<-gBuffer(spTransform(land,ae),byid=T,width=0)
+bordercrop<-gBuffer(border,byid=T,width=0)
+cropland<-intersect(repland,bordercrop)
+#cropcoast<-crop(coastline,extent(-180,180,30,90))
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N.pdf",width=11,height=7.5)
+
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_all.pdf",width=11,height=7.5)
 
 #### -----------------------------------------
 ##  a
 par(fig=c(0,0.33,0.5,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0))
 plot(border)
+plot(cropland,col='grey',lwd=0.2,add=T)
 plotlatlong()
-lines(repcoa,col='black',lwd=0.2)
+
 
 points(proj_site,col=site_col,pch=site_pch)
 mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
@@ -145,13 +153,13 @@ legend("bottomright",lc_type,col=lc_col,pch=lc_pch,cex=0.7,bg = 'white')
 ##  b
 
 par(fig=c(0,0.33,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
-plot(NA,xlim=c(0, 1.1),ylim=c(0,20),axes=F,xlab="",ylab="")
+plot(NA,xlim=c(0, 1.),ylim=c(0,20),axes=F,xlab="",ylab="")
 #plot(NA,xlim=c(0, 1.3),ylim=c(0,1.3),axes=F,xlab="",ylab="")
 for (i in 1:7){
   biome_dat<-good_obs[good_obs$igbp==lc_type[i],]
   points(biome_dat$CSIF,biome_dat$GPP_NT_VUT_REF,col=lc_col[i],pch=lc_pch[i],cex=0.3)
   reg<-cor.test(biome_dat$CSIF,biome_dat$GPP_NT_VUT_REF)
-  text(1.15,10-1.25*i,substitute(paste(italic(r),"=",a,sep=""),
+  text(1.05,10-1.25*i,substitute(paste(italic(r),"=",a,sep=""),
                                  list(a=formatC(round(reg$estimate,2),format='f',digits = 2,flag="0"))),
        pos=2,col=lc_col[i])
 }
@@ -166,7 +174,7 @@ box()
 #### -----------------------------------------
 ##  c
 par(fig=c(0.33,0.66,0.5,1),mar=c(3.4,3.4,1.4,1.4),new=T)
-plot(NA,xlim=c(0, 170),ylim=c(0,170),axes=F,xlab="",ylab="")
+plot(NA,xlim=c(0, 220),ylim=c(0,220),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
   biome_pheno<-site_phenology_used[!is.na(match(site_phenology_used$site,site_name_biome)),]
@@ -174,11 +182,11 @@ for (lc in 1:length(lc_type)){
 }
 corr<-cor.test(site_phenology_used$sos_gpp%%1,site_phenology_used$sos_csif%%1)
 reg<-lm(site_phenology_used$sos_gpp%%1~site_phenology_used$sos_csif%%1-1)
-text(170,170/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
+text(220,220/16*2.5,substitute(paste(italic(r),"=",a,'   n=',b,sep=""),
                                list(a=formatC(round(corr$estimate,2),format='f',digits = 2,flag="0"),
                                     b=corr$parameter)),
      pos=2)
-text(170,170/16*1.5,substitute(paste("RMSE=",a,sep=""),
+text(220,220/16*1.5,substitute(paste("RMSE=",a,sep=""),
                                list(a=formatC(sqrt(mean((reg$residuals)^2))*365,2),
                                     format='f',digits = 2,flag="0")),
      pos=2)
