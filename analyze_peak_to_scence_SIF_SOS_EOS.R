@@ -4,12 +4,12 @@ library(ncdf4)
 setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
 #setwd("/Users/yzhang/Project/SIF_phenology/")
 ## readin the SIF files
-sif_files<-list.files("/rigel/glab/users/zy2309/DATA/all_daily_SIF_4day_HD/", full.names = T,pattern=".nc")
+sif_files<-list.files("/rigel/glab/users/zy2309/DATA/all_daily_SIF_4day_HD_BISE/", full.names = T,pattern=".nc")
 sif_pheno<-list.files("./pheno_hd_fixed_threshold/",full.names = T,pattern = ".nc")
 ## readin the SIF pos eos dates.
-sos_file<-'./analysis/SIF_SOS_30N_fixed_stat.nc'
-pos_file<-"./analysis/SIF_POS_30N_var_stat.nc"
-eos_file<-"./analysis/SIF_EOS_30N_fixed_stat.nc"
+sos_file<-'./analysis/all_daily_SOS_30N_fixed_stat.nc'
+pos_file<-"./analysis/all_daily_POS_30N_fixed_stat.nc"
+eos_file<-"./analysis/all_daily_EOS_30N_fixed_stat.nc"
 
 ##### get average SOS, EOS and POS
 sos_f<-nc_open(sos_file)
@@ -46,7 +46,7 @@ get_late_growingseason_SIF<-function(year){
   mean_csif_start2peak<-apply(cbind(csif_year,sos,pos),1,get_mean_peak2sene)
   dim(mean_csif_start2peak)<-c(720,120)
   
-  year_pheno<-sif_pheno[substr(basename(sif_pheno),19,22)==year]
+  year_pheno<-sif_pheno[substr(basename(sif_pheno),33,36)==year]
   phenoin<-nc_open(year_pheno,write=T)
   xdim2<-phenoin$dim[["longitude"]]
   ydim2<-phenoin$dim[["latitude"]]
@@ -68,7 +68,7 @@ get_late_growingseason_SIF<-function(year){
   nc_close(phenoin)
 }
 
-for (year in 2003:2016){
+for (year in 2001:2016){
   print(year)
   get_late_growingseason_SIF(year)
 }
@@ -76,12 +76,12 @@ for (year in 2003:2016){
 ################################
 ### calcualte the anomaly of SOS and p2s csif
 # 
-setwd("/rigel/glab/users/zy2309/")
-sif_pheno<-list.files("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/",full.names = T,pattern = ".nc")
+setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology")
+sif_pheno<-list.files("./pheno_hd_fixed_threshold/",full.names = T,pattern = ".nc")
 
-sos_file<-"./PROJECT/SIF_phenology/analysis/SIF_SOS_30N_fixed_stat.nc"
-eos_file<-"./PROJECT/SIF_phenology/analysis/SIF_EOS_30N_fixed_stat.nc"
-pos_file<-"./PROJECT/SIF_phenology/analysis/SIF_POS_30N_var_stat.nc"
+sos_file<-'./analysis/all_daily_SOS_30N_fixed_stat.nc'
+pos_file<-"./analysis/all_daily_POS_30N_fixed_stat.nc"
+eos_file<-"./analysis/all_daily_EOS_30N_fixed_stat.nc"
 
 ##### get average EOS and SOS
 eos_f<-nc_open(eos_file)
@@ -99,17 +99,24 @@ dim(sos)<-c(86400,1)
 dim(pos)<-c(86400,1)
 
 get_cru_var<-function(var_name){
-  var_f<-list.files('./DATA/CRU_TS401/',full.names = T,pattern = paste(var_name,".dat.nc",sep=""))
+  #get the monthly climate data from 2000 to 2016
+  var_f<-list.files('/rigel/glab/users/zy2309/DATA/CRU_TS401/',full.names = T,pattern = paste(var_name,".dat.nc",sep=""))
   var_in1<-nc_open(var_f[1])
-  var1<-ncvar_get(var_in1,var_name)[,241:360,]
+  var1<-ncvar_get(var_in1,var_name)[,241:360,109:120]
   nc_close(var_in1)
-  dim(var1)<-c(86400,120)
+  dim(var1)<-c(86400,12)
   
   var_in2<-nc_open(var_f[2])
   var2<-ncvar_get(var_in2,var_name)[,241:360,]
   nc_close(var_in2)
-  dim(var2)<-c(86400,72)
-  var<-cbind(var1,var2)
+  dim(var2)<-c(86400,120)
+  var_temp<-cbind(var1,var2)
+  
+  var_in3<-nc_open(var_f[3])
+  var3<-ncvar_get(var_in3,var_name)[,241:360,]
+  nc_close(var_in3)
+  dim(var3)<-c(86400,72)
+  var<-cbind(var_temp,var3)
   return(var)
 }
 
@@ -119,6 +126,8 @@ precip<-get_cru_var('pre')
 
 
 get_total<-function(xts){
+  ### xts  first 13 is the variable for previous Dec to this Dec (13 in total)
+  ### xts  the 14 and 15 are the sos and eos
   if (is.na(xts[14]*xts[15]))
     return(NA)
   else
@@ -133,10 +142,10 @@ get_mean<-function(xts){
 }
 
 
-for (year in 2003:2016){
+for (year in 2001:2016){
   #get precipitation for this year +one month from previous year
-  precip_year<-precip[,((year-2001)*12):((year-2000)*12)]
-  tmean_year<-tmean[,((year-2001)*12):((year-2000)*12)]
+  precip_year<-precip[,((year-2000)*12):((year-1999)*12)]
+  tmean_year<-tmean[,((year-2000)*12):((year-1999)*12)]
   
   prec_dat<-cbind(precip_year,sos,eos)
   gowning_precip<-apply(prec_dat,1,get_total)
@@ -151,7 +160,7 @@ for (year in 2003:2016){
   half_temp<-apply(temp_dat,1,get_mean)
   
   ### write data to pheno
-  year_pheno<-sif_pheno[substr(basename(sif_pheno),19,22)==year]
+  year_pheno<-sif_pheno[substr(basename(sif_pheno),33,36)==year]
   phenoin<-nc_open(year_pheno,write=T)
   xdim2<-phenoin$dim[["longitude"]]
   ydim2<-phenoin$dim[["latitude"]]
@@ -184,8 +193,8 @@ for (year in 2003:2016){
 
 ## get the average of SOS, CSIF, Tmean and Precip
 library(ppcor)
-setwd("/rigel/glab/users/zy2309/")
-sif_pheno<-list.files("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/",full.names = T,pattern = ".nc")
+setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
+sif_pheno<-list.files("./pheno_hd_fixed_threshold/",full.names = T,pattern = ".nc")
 
 
 calculate_partial_correlation<-function(dat){
@@ -207,7 +216,7 @@ h_precip<-array(NA,dim=c(86400,14))
 
 
 for (year in 2003:2016){
-  year_pheno<-sif_pheno[substr(basename(sif_pheno),19,22)==year]
+  year_pheno<-sif_pheno[substr(basename(sif_pheno),33,36)==year]
   phenoin<-nc_open(year_pheno,write=T)
   p2s_csif[,year-2002]<-ncvar_get(phenoin,'p2s_csif')
   s2p_csif[,year-2002]<-ncvar_get(phenoin,'s2p_csif')
@@ -235,7 +244,7 @@ p_pv<-pcor_eos_csif[2,]
 p_pv[is.nan(p_pv)]<- -999.9
 dim(p_pv)<-c(720,120)
 
-nc_out_f1<-"./PROJECT/SIF_phenology//analysis/pcor_sos_csif_p2s.nc"
+nc_out_f1<-"./analysis/pcor_sos_csif_p2s.nc"
 
 pcor_coef<-ncvar_def("pcor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 pcor_pv<-ncvar_def("pcor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
@@ -257,7 +266,7 @@ p_pv<-pcor_sos_csif[2,]
 p_pv[is.nan(p_pv)]<- -999.9
 dim(p_pv)<-c(720,120)
 
-nc_out_f2<-"./PROJECT/SIF_phenology/analysis/pcor_sos_csif_s2p.nc"
+nc_out_f2<-"./analysis/pcor_sos_csif_s2p.nc"
 
 pcor_coef<-ncvar_def("pcor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 pcor_pv<-ncvar_def("pcor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
@@ -279,7 +288,7 @@ p_pv<-pcor_sos_eos[2,]
 p_pv[is.nan(p_pv)]<- -999.9
 dim(p_pv)<-c(720,120)
 
-nc_out_f3<-"./PROJECT/SIF_phenology/analysis/pcor_sos_eos.nc"
+nc_out_f3<-"./analysis/pcor_sos_eos.nc"
 
 pcor_coef<-ncvar_def("pcor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 pcor_pv<-ncvar_def("pcor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
@@ -313,7 +322,7 @@ pv<-corsos_csif[2,]
 pv[is.nan(pv)]<- -999.9
 dim(pv)<-c(720,120)
 
-nc_out_f2<-"./PROJECT/SIF_phenology/analysis/cor_sos_csif_s2p.nc"
+nc_out_f2<-"./analysis/cor_sos_csif_s2p.nc"
 
 cor_coef<-ncvar_def("cor_coef",'',list(xdim,ydim),-999.9,prec="double",compression=9)
 cor_pv<-ncvar_def("cor_pv",'',list(xdim,ydim),-999.9,prec="double",compression=9)
