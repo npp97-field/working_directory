@@ -17,8 +17,13 @@ remove_outliers<-function(vits){
 }
 
 get_threshold<-function(var_ts,thresh=0.3){
-  peak <- max(var_ts, na.rm=TRUE)
-  trough<-max(min(var_ts, na.rm=TRUE),0)
+  #### calculate the mean seasonal cycle and use the 30% as threshold
+  n<-length(var_ts)
+  dim(var_ts)<-c(92,n/92)
+  season_mean<-apply(var_ts,1,mean,na.rm=T)
+  
+  peak <- max(season_mean, na.rm=TRUE)
+  trough<-max(min(season_mean, na.rm=TRUE),0)
   if (trough<0.1*peak){
     trough<-0
   }
@@ -66,7 +71,7 @@ retrieved_pheno<-as.data.frame(array(NA,dim=c(1000,8)))
 names(retrieved_pheno)<-c("site",'year','sos_gpp','eos_gpp','sos_ndvi','eos_ndvi','sos_csif','eos_csif')
 
 site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
-com_f<-list.files('./retrieve_site/combined_all/',full.names = T)
+com_f<-list.files('./retrieve_site/combined_clear/',full.names = T)
 k<-0
 
 for (i in 1:dim(site_list)[1]){
@@ -139,7 +144,7 @@ for (i in 1:dim(site_list)[1]){
     retrieved_pheno[k,c(7,8)]<-extract_thresh(year_data$SIF_sp,sifthresh)[1:2]
   
   
-    pdf(paste('./retrieve_site/graph_sos_eos_all/',site_list$SITE_ID[i],'_',uyears[y],".pdf",sep=''),width=8,height=6)
+    pdf(paste('./retrieve_site/graph_sos_eos_clear/',site_list$SITE_ID[i],'_',uyears[y],".pdf",sep=''),width=8,height=6)
     plot(0:91/92*12,year_data$GPP_in,xlim=c(0,12),ylim=c(0, gppthresh*4),
          col="darkgreen",xlab="", ylab="",type="p")
     lines(0:91/92*12,year_data$GPP_sp,col="green")
@@ -191,5 +196,5 @@ cor.test(retrieved_pheno$eos_gpp-floor(retrieved_pheno$eos_gpp),
          retrieved_pheno$eos_csif-floor(retrieved_pheno$eos_csif))
 
 
-write.csv(retrieved_pheno,"./retrieve_site/analysis/site_phenology_0.3_N30_all_daily.csv",row.names = F)
+write.csv(retrieved_pheno,"./retrieve_site/analysis/site_phenology_0.3_N30_clear_daily.csv",row.names = F)
 

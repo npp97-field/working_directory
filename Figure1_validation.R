@@ -9,13 +9,16 @@ lc_type<-c("ENF","DBF","MF","WSA","OSH","GRA","WET")
 lc_col<-c("palegreen4","yellowgreen","lightseagreen",
           "tan4","coral3","darkolivegreen",'royalblue4')
 
+longlat <-  CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0")
+ae<-"+proj=aeqd +lat_0=90 +lon_0=-0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
 # site_list<-read.csv("./retrieve_site/sites_used.csv",stringsAsFactors = F)
 # site_list<-site_list[site_list$LOCATION_LAT>=35,]
 # site_no<-dim(site_list)[1]
 # write.csv(site_list,"./retrieve_site/sites_35N.csv",row.names = F)
 setwd("/Users/yzhang/Project/SIF_phenology/")
 site_list<-read.csv("./retrieve_site/sites_2000.csv",stringsAsFactors = F)
-site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3_N30_all_daily.csv",stringsAsFactors = F)
+site_phenology<-read.csv("./retrieve_site/analysis/site_phenology_0.3_N30_clear_daily.csv",stringsAsFactors = F)
 site_phenology_used<-site_phenology[!is.na(site_phenology$sos_gpp),]
 
 ######get the interannual variability
@@ -37,7 +40,7 @@ for(i in 1:length(iav_sites)){
 ano_pheno<-ano_pheno[!is.na(ano_pheno$site),]
 
 
-comb_f<-list.files("./retrieve_site/combined_all/",full.names = T)
+comb_f<-list.files("./retrieve_site/combined_clear/",full.names = T)
 for (i in 1:length(site_list$SITE_ID)){
   temp<-read.csv(comb_f[substr(basename(comb_f),1,6)==site_list$SITE_ID[i]],header = T)
   names(temp)[3]<-"CSIF"
@@ -53,9 +56,9 @@ for (i in 1:length(site_list$SITE_ID)){
   combined_data<-rbind(combined_data,data_used)
 }
 
-write.csv(combined_data,"./retrieve_site/analysis/combined_sites_data_all.csv",row.names = F)
+write.csv(combined_data,"./retrieve_site/analysis/combined_sites_data_clear.csv",row.names = F)
 
-comb_data<-read.csv("./retrieve_site/analysis/combined_sites_data_all.csv",stringsAsFactors = F)
+comb_data<-read.csv("./retrieve_site/analysis/combined_sites_data_clear.csv",stringsAsFactors = F)
 good_obs<-comb_data[comb_data$NEE_VUT_REF_QC>0.8,]
 
 lc_pch<-1:length(lc_type)
@@ -130,7 +133,7 @@ cropland<-intersect(repland,bordercrop)
 #cropcoast<-crop(coastline,extent(-180,180,30,90))
 
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_all.pdf",width=11,height=7.5)
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_clear.pdf",width=11,height=7.5)
 
 #### -----------------------------------------
 ##  a

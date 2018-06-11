@@ -76,10 +76,14 @@ export_nc<-function(pheno_dat,outfile){
 }
 
 ### get the threshold 
-### to be consistent with the site level-method. modified on May 25th 2018
+### to be consistent with the site level-method. modified on May 25th 2018,us multi-year_average seasonal value
 get_threshold<-function(var_ts,thresh=0.3){
-  peak <- max(var_ts, na.rm=TRUE)
-  trough<-max(min(var_ts, na.rm=TRUE),0)
+  n<-length(var_ts)
+  dim(var_ts)<-c(92,n/92)
+  season_mean<-apply(var_ts,1,mean,na.rm=T)
+  
+  peak <- max(season_mean, na.rm=TRUE)
+  trough<-max(min(season_mean, na.rm=TRUE),0)
   if (trough<0.1*peak){
     trough<-0
   }
@@ -110,6 +114,13 @@ clusterEvalQ(cl, {
   library(zoo)
 })
 
+ncbar<-nc_open('/rigel/glab/users/zy2309/PROJECT/SIF_phenology/analysis/climate/North_barren_mask.nc')
+barren<-ncvar_get(ncbar,"barren")
+nc_close(ncbar)
+barrenmask<-rep(barren,each =4)
+dim(barrenmask)<-c(4,720,120)
+
+
 # first get annual smoothed VI and get threshold
 smoothed_CSIF<-array(NA,dim=c(86400,92*length(year_files)))
 for(i in 1:length(year_files)){
@@ -133,6 +144,8 @@ for(i in 1:length(year_files)){
   #sif_pheno<-apply(yeardata_with_thresh,1,retrieve_pheno_fix)
   #sif_res<-unlist(sif_pheno)
   dim(sif_pheno)<-c(4,720,120)
+  sif_pheno<-sif_pheno*barrenmask
+  sif_pheno[is.na(sif_pheno)]<--9999
   outfile<-paste("./PROJECT/SIF_phenology/pheno_hd_fixed_threshold/all_daily_SOS_POS_EOS_threshold_",year,".nc",sep="")
   if(file.exists(outfile))
     file.remove(outfile)

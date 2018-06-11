@@ -62,10 +62,9 @@ export_nc<-function(pheno_dat,outfile){
 ########################
 
 setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
-indicator<-c('var','fixed')
 
 stat_dataset<-function(indi){
-  pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold/",sep=""),pattern=".nc",full.names = T)
+  pheno_files<-list.files(paste("./pheno_hd_",indi,"_threshold_clear/",sep=""),pattern=".nc",full.names = T)
   sos<-array(NA,dim=c(86400,length(pheno_files)))
   pos<-array(NA,dim=c(86400,length(pheno_files)))
   eos<-array(NA,dim=c(86400,length(pheno_files)))
@@ -85,11 +84,30 @@ stat_dataset<-function(indi){
     thresh[,i]<-ncthresh
   }
   lgs<-eos-sos
-  calculate_stat(sos,paste("./analysis/all_daily_SOS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(pos,paste("./analysis/all_daily_POS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(eos,paste("./analysis/all_daily_EOS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(lgs,paste("./analysis/all_daily_LGS_30N_",indi,"_stat.nc",sep=""))
-  calculate_stat(thresh,paste("./analysis/all_daily_THRESH_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(sos,paste("./analysis/clear_daily_SOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(pos,paste("./analysis/clear_daily_POS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(eos,paste("./analysis/clear_daily_EOS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(lgs,paste("./analysis/clear_daily_LGS_30N_",indi,"_stat.nc",sep=""))
+  calculate_stat(thresh,paste("./analysis/clear_daily_THRESH_30N_",indi,"_stat.nc",sep=""))
+}
+stat_dataset("fixed")
+
+
+################################################################################################
+
+setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
+
+stat_climate<-function(var){
+  pheno_files<-list.files(paste("./pheno_hd_fixed_threshold_climate/clear/",sep=""),pattern=".nc",full.names = T)
+  var_dat<-array(NA,dim=c(86400,length(pheno_files)))
+  
+  for (i in 1:length(pheno_files)){
+    ncf<-nc_open(pheno_files[i])
+    ncvar<-ncvar_get(ncf,varid = var)
+    nc_close(ncf)
+    var_dat[,i]<-ncvar
+  }
+  calculate_stat(var_dat,paste("./analysis/climate/clear_daily_SOS_30N_",var,"_stat.nc",sep=""))
 }
 
 #### variable threshold for each year
@@ -97,10 +115,10 @@ stat_dataset<-function(indi){
 #stat_dataset(indicator[1])
 
 #### fixed threshold for each year
-
-stat_dataset(indicator[2])
-
-
+vars<-c("pre_start_par","pre_start_prec","pre_start_temp","pre_end_par","pre_end_prec","pre_end_temp")
+for (i in 1:6){
+  stat_climate(vars[i])
+}
 
 
 
