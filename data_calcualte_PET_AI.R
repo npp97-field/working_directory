@@ -57,7 +57,7 @@ export_nc<-function(outdata,outfile){
 
 pet<-get_annual_average("pet")
 pre<-get_annual_average("pre")
-ai<-pre*30/pet
+ai<-pet/pre/30*100
 #dim(ai)<-c(120,720)
 out_put<-cbind(pet,pre,ai)
 
