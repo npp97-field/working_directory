@@ -43,11 +43,11 @@ to_raster<-function(nc){
   return(ras)
 }
 
-wet_r<-to_raster(wet)
-plot(wet_r)
-plot(coastline,add=T)
-barren_r<-to_raster(barren)
-plot(barren_r)
+#wet_r<-to_raster(wet)
+#plot(wet_r)
+#plot(coastline,add=T)
+#barren_r<-to_raster(barren)
+#plot(barren_r)
 
 
 
@@ -60,7 +60,7 @@ nc_close(ncin)
 #### 6 CSH 7 OSH 8 WSA
 #### 9 SAV 10 GRA 11 WET
 #### 12 CRO 14 CNV
-
+data(worldgrids_pal)
 lc_col<-worldgrids_pal$IGBP[2:15]
 lc_type<-c("ENF","EBF","DNF","DBF","MF","CSH","OSH","WSA","SAV","GRA","WET","CRO","URB","CNV")
 
@@ -71,22 +71,35 @@ export_nc(barren,"./data/North_barren_mask.nc","barren")
 lc<-lc*barren
 
 ncin<-nc_open("./data/ai_cru.nc")
-ai<-ncvar_get(ncin,'ai')/1000
+ai<-ncvar_get(ncin,'ai')#/1000
 nc_close(ncin)
 
-ncin<-nc_open("./analysis/p_corr/pcor_sos_csif_p2s.nc")
+###########################
+ncin<-nc_open("./analysis/correlation_clear/pcor_sos_csif_p2s.nc")
 pcor_sos_p2s<-ncvar_get(ncin,"pcor_coef")
 nc_close(ncin)
 
-ncin<-nc_open("./analysis/p_corr/pcor_sos_eos.nc")
+ncin<-nc_open("./analysis/correlation_clear/pcor_sos_eos.nc")
 pcor_sos_eos<-ncvar_get(ncin,"pcor_coef")
 nc_close(ncin)
 
-cor_lc_ai<-cbind(as.vector(pcor_sos_p2s),as.vector(pcor_sos_eos),as.vector(lc),as.vector(ai))
+pcor_lc_ai<-cbind(as.vector(pcor_sos_p2s),as.vector(pcor_sos_eos),as.vector(lc),as.vector(ai))
+pgood_dat<-pcor_lc_ai[complete.cases(pcor_lc_ai), ]
+############################
+ncin<-nc_open("./analysis/correlation_clear/cor_sos_csif_p2s.nc")
+cor_sos_p2s<-ncvar_get(ncin,"cor_coef")
+nc_close(ncin)
+
+ncin<-nc_open("./analysis/correlation_clear/cor_sos_eos.nc")
+cor_sos_eos<-ncvar_get(ncin,"cor_coef")
+nc_close(ncin)
+
+cor_lc_ai<-cbind(as.vector(cor_sos_p2s),as.vector(cor_sos_eos),as.vector(lc),as.vector(ai))
 good_dat<-cor_lc_ai[complete.cases(cor_lc_ai), ]
 
 #plot(good_dat[,1],log(good_dat[,4]),col=lc_col[good_dat[,3]],cex=0.3,pch=15)
 #tapply(good_dat[,1], good_dat[,3], mean)
+#table(good_dat[,3])
 
 #######################################
 
@@ -150,32 +163,97 @@ plotlatlong<-function(){
 border<-plot_lat(30)
 lc_rep<-nc2ae(lc)
 
-pdf(paste("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/landcover.pdf",sep=""),width=5,height=4)
-
-par(fig=c(0,1,0,1),mar=c(0.4,0.4,0.4,4.4),mgp=c(3,0.3,0))
-plot(border)
-image(lc_rep,add=T,col=lc_col,axes=F,zlim=c(1,14))
-plot(repcoa,add=T)
-#text(0, 5500000,"SOS",cex=1.3)
-plotlatlong()
-#mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
-par(fig=c(0,1,0,1),mar=c(0.4,0.4,0.4,0.4),new=T)
-plot(lc_rep, legend.only=TRUE, col=rep(rev(lc_col),each=20),horizontal=F,zlim=c(1,14*20),
-     legend.width=1.3, legend.shrink=0.75,
-     axis.args=list(at=(1:14)*20-10,
-                    labels=rev(lc_type), mgp=c(3,0.2,0),tck=0.3,
-                    cex.axis=1))
-
-dev.off()
+# pdf(paste("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/landcover_clear.pdf",sep=""),width=5,height=4)
+# 
+# par(fig=c(0,1,0,1),mar=c(0.4,0.4,0.4,4.4),mgp=c(3,0.3,0))
+# plot(border)
+# image(lc_rep,add=T,col=lc_col,axes=F,zlim=c(1,14))
+# plot(repcoa,add=T)
+# #text(0, 5500000,"SOS",cex=1.3)
+# plotlatlong()
+# #mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
+# par(fig=c(0,1,0,1),mar=c(0.4,0.4,0.4,0.4),new=T)
+# plot(lc_rep, legend.only=TRUE, col=rep(rev(lc_col),each=20),horizontal=F,zlim=c(1,14*20),
+#      legend.width=1.3, legend.shrink=0.75,
+#      axis.args=list(at=(1:14)*20-10,
+#                     labels=rev(lc_type), mgp=c(3,0.2,0),tck=0.3,
+#                     cex.axis=1))
+# 
+# dev.off()
 
 
 # ######################
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/ai_lc_correlation_clear.pdf",width=8,height=10)
 # ### only plot the forest ecosystems
-# forests<-good_dat[good_dat[,3]==1|good_dat[,3]==2|good_dat[,3]==3|good_dat[,3]==4|good_dat[,3]==5,]
-# plot(forests[,1],log(forests[,4]),col=lc_col[forests[,3]],cex=0.3,pch=15)
-# 
-# non_forest<-good_dat[good_dat[,3]==6|good_dat[,3]==7|good_dat[,3]==8|good_dat[,3]==9|good_dat[,3]==10|good_dat[,3]==11,]
-# plot(non_forest[,1],log(non_forest[,4]),col=lc_col[non_forest[,3]],cex=0.3,pch=15)
-# 
-# crop<-good_dat[good_dat[,3]==12|good_dat[,3]==14,]
-# plot(crop[,1],log(crop[,4]),col=lc_col[crop[,3]],cex=0.3,pch=15)
+par(mfcol=c(3,2),mar=c(2,2,2,2),oma=c(2,2,2,2))
+forests<-good_dat[good_dat[,3]==1|good_dat[,3]==2|good_dat[,3]==3|good_dat[,3]==4|good_dat[,3]==5,]
+plot(log(forests[,4]),forests[,1],col=lc_col[forests[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(forests[,4]),forests[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"corelation")
+cor.test(log(forests[,4]),forests[,1])
+
+non_forest<-good_dat[good_dat[,3]==6|good_dat[,3]==7|good_dat[,3]==8|good_dat[,3]==9|good_dat[,3]==10|good_dat[,3]==11,]
+plot(log(non_forest[,4]),non_forest[,1],col=lc_col[non_forest[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(non_forest[,4]),non_forest[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"corelation")
+cor.test(non_forest[,1],log(non_forest[,4]))
+
+crop<-good_dat[good_dat[,3]==12|good_dat[,3]==14,]
+plot(log(crop[,4]),crop[,1],col=lc_col[crop[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(crop[,4]),crop[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"corelation")
+cor.test(crop[,1],log(crop[,4]))
+
+#####################
+#install.packages("ElemStatLearn")
+library(ElemStatLearn, quietly=TRUE)
+pforests<-pgood_dat[pgood_dat[,3]==1|pgood_dat[,3]==2|pgood_dat[,3]==3|pgood_dat[,3]==4|pgood_dat[,3]==5,]
+plot(log(pforests[,4]),pforests[,1],col=lc_col[pforests[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(pforests[,4]),pforests[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"partial corelation")
+cor.test(log(pforests[,4]),pforests[,1])
+
+pnon_forest<-pgood_dat[pgood_dat[,3]==6|pgood_dat[,3]==7|pgood_dat[,3]==8|pgood_dat[,3]==9|pgood_dat[,3]==10|pgood_dat[,3]==11,]
+plot(log(pnon_forest[,4]),pnon_forest[,1],col=lc_col[pnon_forest[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(pnon_forest[,4]),pnon_forest[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"partial corelation")
+cor.test(pnon_forest[,1],log(pnon_forest[,4]))
+
+pcrop<-pgood_dat[pgood_dat[,3]==12|pgood_dat[,3]==14,]
+plot(log(pcrop[,4]),pcrop[,1],col=lc_col[pcrop[,3]],cex=0.3,pch=15,xlim=c(-3,2),axes=F)
+fit <- ksmooth(log(pcrop[,4]),pcrop[,1])
+lines(fit, lwd=2, col=rgb(0,0,0,0.5))
+box()
+axis(2)
+axis(1, at=log(c(0.05,0.2,0.5,0.65)),lab=c(0.05,0.2,0.5,0.65))
+mtext(side=1,line=2,"Aridity Index")
+mtext(side=2,line=2,"partial corelation")
+cor.test(pcrop[,1],log(pcrop[,4]))
+dev.off()
+
+
