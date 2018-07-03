@@ -653,5 +653,29 @@ if (T){
   cal_cor(var_dat,fileout)
   
 }
+###### radiation feedback
+sos_eos<-cbind(sos,p2e_par)
+nc_out_f3<-"./analysis/correlation_clear/cor_sos_p2e_par.nc"
+cal_cor(sos_eos,nc_out_f3)
+
+sos_eos<-cbind(eos,p2e_par)
+nc_out_f3<-"./analysis/correlation_clear/cor_eos_p2e_par.nc"
+cal_cor(sos_eos,nc_out_f3)
+
+sos_eos<-cbind(p2s_csif,p2e_par)
+nc_out_f3<-"./analysis/correlation_clear/cor_p2e_sif_par.nc"
+cal_cor(sos_eos,nc_out_f3)
+
+
+sos_eos<-cbind(eos,p2e_par,p2e_temp,p2e_prec)
+nc_out_f3<-"./analysis/correlation_clear/pcor_eos_p2e_par.nc"
+cal_pcor(sos_eos,nc_out_f3)
+
+sos_eos<-cbind(p2s_csif,p2e_par,p2e_temp,p2e_prec)
+nc_out_f3<-"./analysis/correlation_clear/pcor_p2e_sif_par.nc"
+cal_pcor(sos_eos,nc_out_f3)
+
+
+
 
 
