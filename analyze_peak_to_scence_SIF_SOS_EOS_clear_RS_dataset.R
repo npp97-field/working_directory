@@ -436,38 +436,87 @@ sif_pheno<-list.files("./pheno_hd_fixed_threshold_clear/",full.names = T,pattern
 sif_climate<-list.files("./pheno_hd_fixed_threshold_climate/clear_rs/",full.names = T,pattern = ".nc")
 sif_climate_era<-list.files("./pheno_hd_fixed_threshold_climate/clear_era/",full.names = T,pattern = ".nc")
 
-p2s_csif<-array(NA,dim=c(86400,16))
+p2e_csif<-array(NA,dim=c(86400,16))
 s2p_csif<-array(NA,dim=c(86400,16))
-s2s_csif<-array(NA,dim=c(86400,16))
+s2e_csif<-array(NA,dim=c(86400,16))
 ann_csif<-array(NA,dim=c(86400,16))
 sos<-array(NA,dim=c(86400,16))
 eos<-array(NA,dim=c(86400,16))
-s2e_temp<-array(NA,dim=c(86400,16))
+
+s2e_tday<-array(NA,dim=c(86400,16))
+s2e_tnight<-array(NA,dim=c(86400,16))
+s2p_tday<-array(NA,dim=c(86400,16))
+s2p_tnight<-array(NA,dim=c(86400,16))
+p2e_tday<-array(NA,dim=c(86400,16))
+p2e_tnight<-array(NA,dim=c(86400,16))
+
 s2e_prec<-array(NA,dim=c(86400,16))
-s2e_par<-array(NA,dim=c(86400,16))
-s2p_temp<-array(NA,dim=c(86400,16))
 s2p_prec<-array(NA,dim=c(86400,16))
-s2p_par<-array(NA,dim=c(86400,16))
-p2e_temp<-array(NA,dim=c(86400,16))
 p2e_prec<-array(NA,dim=c(86400,16))
+
+s2e_par<-array(NA,dim=c(86400,16))
+s2p_par<-array(NA,dim=c(86400,16))
 p2e_par<-array(NA,dim=c(86400,16))
-pre_start_temp<-array(NA,dim=c(86400,16))
-pre_end_temp<-array(NA,dim=c(86400,16))
-p_temp<-array(NA,dim=c(86400,16))
-pre_start_par<-array(NA,dim=c(86400,16))
-pre_end_par<-array(NA,dim=c(86400,16))
+
+pre_start1_tday<-array(NA,dim=c(86400,16))
+pre_end1_tday<-array(NA,dim=c(86400,16))
+p_tday<-array(NA,dim=c(86400,16))
+
+pre_start1_tnight<-array(NA,dim=c(86400,16))
+pre_end1_tnight<-array(NA,dim=c(86400,16))
+p_tnight<-array(NA,dim=c(86400,16))
+
+pre_start1_par<-array(NA,dim=c(86400,16))
+pre_end1_par<-array(NA,dim=c(86400,16))
 p_par<-array(NA,dim=c(86400,16))
-pre_start_prec<-array(NA,dim=c(86400,16))
-pre_end_prec<-array(NA,dim=c(86400,16))
+
+pre_start1_prec<-array(NA,dim=c(86400,16))
+pre_end1_prec<-array(NA,dim=c(86400,16))
 p_prec<-array(NA,dim=c(86400,16))
+
+pre_start2_tday<-array(NA,dim=c(86400,16))
+pre_end2_tday<-array(NA,dim=c(86400,16))
+
+pre_start2_tnight<-array(NA,dim=c(86400,16))
+pre_end2_tnight<-array(NA,dim=c(86400,16))
+
+pre_start2_par<-array(NA,dim=c(86400,16))
+pre_end2_par<-array(NA,dim=c(86400,16))
+
+pre_start2_prec<-array(NA,dim=c(86400,16))
+pre_end2_prec<-array(NA,dim=c(86400,16))
+
+pre_start3_tday<-array(NA,dim=c(86400,16))
+pre_end3_tday<-array(NA,dim=c(86400,16))
+
+pre_start3_tnight<-array(NA,dim=c(86400,16))
+pre_end3_tnight<-array(NA,dim=c(86400,16))
+
+pre_start3_par<-array(NA,dim=c(86400,16))
+pre_end3_par<-array(NA,dim=c(86400,16))
+
+pre_start3_prec<-array(NA,dim=c(86400,16))
+pre_end3_prec<-array(NA,dim=c(86400,16))
+
+pre_start0_tday<-array(NA,dim=c(86400,16))
+pre_end0_tday<-array(NA,dim=c(86400,16))
+
+pre_start0_tnight<-array(NA,dim=c(86400,16))
+pre_end0_tnight<-array(NA,dim=c(86400,16))
+
+pre_start0_par<-array(NA,dim=c(86400,16))
+pre_end0_par<-array(NA,dim=c(86400,16))
+
+pre_start0_prec<-array(NA,dim=c(86400,16))
+pre_end0_prec<-array(NA,dim=c(86400,16))
 
 
 for (year in 2001:2016){
   year_pheno<-sif_pheno[substr(basename(sif_pheno),35,38)==year]
   phenoin<-nc_open(year_pheno)
-  p2s_csif[,year-2000]<-ncvar_get(phenoin,'p2s_csif')
+  p2e_csif[,year-2000]<-ncvar_get(phenoin,'p2s_csif')
   s2p_csif[,year-2000]<-ncvar_get(phenoin,'s2p_csif')
-  s2s_csif[,year-2000]<-ncvar_get(phenoin,'s2s_csif')
+  s2e_csif[,year-2000]<-ncvar_get(phenoin,'s2s_csif')
   ann_csif[,year-2000]<-ncvar_get(phenoin,'ann_csif')
   sos[,year-2000]<-ncvar_get(phenoin,'SOS')*365+2.5
   eos[,year-2000]<-ncvar_get(phenoin,'EOS')*365+2.5
@@ -562,81 +611,164 @@ cal_pcor<-function(data,fileout){
 ###### calculate the SOS effect on SIF EOS, etc
 if (T){
   ##########calculate the pcor between sos and csif_P2S
-  
-  eos_csif<-cbind(sos,p2s_csif,s2e_temp,s2e_prec,s2e_par)
-  fileout<-"./analysis/correlation_clear_rs/pcor_sos_csif_p2s.nc"
+  eos_csif<-cbind(sos,p2e_csif,s2e_tday,s2e_prec,s2e_par)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_csif_p2e.nc"
   cal_pcor(eos_csif,fileout)
   ###########################
-  eos_csif<-cbind(sos,p2s_csif)
-  fileout<-"./analysis/correlation_clear_rs/cor_sos_csif_p2s.nc"
+  eos_csif<-cbind(sos,p2e_csif)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_csif_p2e.nc"
   cal_cor(eos_csif,fileout)
   
   ##########calculate the pcor between sos and csif_S2P
   
-  sos_csif<-cbind(sos,s2p_csif,s2p_temp,s2p_prec,s2p_par)
-  nc_out_f2<-"./analysis/correlation_clear_rs/pcor_sos_csif_s2p.nc"
-  cal_pcor(sos_csif,nc_out_f2)
+  sos_csif<-cbind(sos,s2p_csif,s2e_tday,s2p_prec,s2p_par)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_csif_s2p.nc"
+  cal_pcor(sos_csif,fileout)
   
   #######################
   sos_csif<-cbind(sos,s2p_csif)
-  nc_out_f2<-"./analysis/correlation_clear_rs/cor_sos_csif_s2p.nc"
-  cal_cor(sos_csif,nc_out_f2)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_csif_s2p.nc"
+  cal_cor(sos_csif,fileout)
   
   ##########calculate the pcor between sos and csif_S2S
-  
-  sos_csif<-cbind(sos,s2s_csif,s2e_temp,s2e_prec)
-  nc_out_f2<-"./analysis/correlation_clear_rs/pcor_sos_csif_s2s.nc"
-  cal_pcor(sos_csif,nc_out_f2)
+  sos_csif<-cbind(sos,s2e_csif,s2e_temp,s2e_prec)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_csif_s2e.nc"
+  cal_pcor(sos_csif,fileout)
   
   
   #######################
-  sos_csif<-cbind(sos,s2s_csif)
-  nc_out_f2<-"./analysis/correlation_clear_rs/cor_sos_csif_s2s.nc"
-  cal_cor(sos_csif,nc_out_f2)
+  sos_csif<-cbind(sos,s2e_csif)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_csif_s2e.nc"
+  cal_cor(sos_csif,fileout)
   
   
   ##########calculate the pcor between sos and eos
-  sos_eos<-cbind(sos,eos,s2e_temp,s2e_prec,s2e_par)
-  nc_out_f3<-"./analysis/correlation_clear_rs/pcor_sos_eos.nc"
-  cal_pcor(sos_eos,nc_out_f3)
+  sos_eos<-cbind(sos,eos,s2e_tday,s2e_prec,s2e_par)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_eos.nc"
+  cal_pcor(sos_eos,fileout)
   
   ####################################
   sos_eos<-cbind(sos,eos)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_eos.nc"
-  cal_cor(sos_eos,nc_out_f3)
-  
-  
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_eos.nc"
+  cal_cor(sos_eos,fileout)
 }
 
 
 
 ###### calculate the controlling factors of SOS EOS
 if (T){
-  ##########calculate the cor between sos and eos and pre season temp
-  sos_eos<-cbind(sos,pre_start_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_pre_temp.nc"
-  cal_cor(sos_eos,nc_out_f3)
+  ##########calculate the cor between sos and eos and pre season tday
+  sos_eos<-cbind(sos,pre_start1_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre1_tday.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start2_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre2_tday.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start3_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre3_tday.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start0_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_tday.nc"
+  cal_cor(sos_eos,fileout)
+  ####################################   Tnight
+  sos_eos<-cbind(sos,pre_start1_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre1_tnight.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start2_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre2_tnight.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start3_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre3_tnight.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start0_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_tnight.nc"
+  cal_cor(sos_eos,fileout)
   
-  ####################################
-  sos_eos<-cbind(eos,pre_end_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_eos_pre_temp.nc"
-  cal_cor(sos_eos,nc_out_f3)
+  ####################################     Prec
+  sos_eos<-cbind(sos,pre_start1_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre1_prec.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start2_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre2_prec.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start3_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre3_prec.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start0_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_prec.nc"
+  cal_cor(sos_eos,fileout)
   
-  ############ sos and late season temperature
-  sos_eos<-cbind(sos,pre_end_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_prefall_temp.nc"
-  cal_cor(sos_eos,nc_out_f3)
   
-  ####################################
-  sos_eos<-cbind(sos,p2e_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_p2e_temp.nc"
-  cal_cor(sos_eos,nc_out_f3)
+  ####################################     PAR
+  sos_eos<-cbind(sos,pre_start1_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre1_par.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start2_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre2_par.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start3_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre3_par.nc"
+  cal_cor(sos_eos,fileout)
+  sos_eos<-cbind(sos,pre_start0_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_prec.nc"
+  cal_cor(sos_eos,fileout)
   
-  ####################################
-  sos_eos<-cbind(sos,s2p_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_s2p_temp.nc"
-  cal_cor(sos_eos,nc_out_f3)
+  ############ eos and late season temperature
+  eos_eos<-cbind(eos,pre_end1_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre1_tday.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end2_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre2_tday.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end3_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre3_tday.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end0_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre0_tday.nc"
+  cal_cor(eos_eos,fileout)
+  ####################################   Tnight
+  eos_eos<-cbind(eos,pre_end1_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre1_tnight.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end2_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre2_tnight.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end3_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre3_tnight.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end0_tnight)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre0_tnight.nc"
+  cal_cor(eos_eos,fileout)
   
+  ####################################     Prec
+  eos_eos<-cbind(eos,pre_end1_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre1_prec.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end2_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre2_prec.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end3_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre3_prec.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end0_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre0_prec.nc"
+  cal_cor(eos_eos,fileout)
+  
+  
+  ####################################     PAR
+  eos_eos<-cbind(eos,pre_end1_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre1_par.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end2_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre2_par.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end3_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre3_par.nc"
+  cal_cor(eos_eos,fileout)
+  eos_eos<-cbind(eos,pre_end0_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_eos_pre0_prec.nc"
+  cal_cor(eos_eos,fileout)
+
 }
 
 
@@ -676,70 +808,7 @@ if (T){
   s2s_sif_prec<-cbind(s2p_csif,p2s_csif)
   nc_out_f3<-"./analysis/correlation_clear_rs/cor_s2p_p2s_csif.nc"
   cal_cor(s2s_sif_prec,nc_out_f3)
-  
 }
-
-###### climate inter-correlation
-if (T){
-  var_dat<-cbind(pre_start_temp,pre_start_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_start_prec_pre_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(pre_start_temp,pre_start_par)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_start_par_pre_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(pre_start_par,pre_start_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_start_par_pre_prec.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(pre_end_temp,pre_end_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_end_prec_pre_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(pre_end_temp,pre_end_par)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_end_par_pre_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(pre_end_par,pre_end_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_pre_end_par_pre_prec.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(s2e_temp,s2e_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_s2e_prec_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(s2e_temp,s2e_par)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_s2e_par_temp.nc"
-  cal_cor(var_dat,fileout)
-  
-  var_dat<-cbind(s2e_par,s2e_prec)
-  fileout<-"./analysis/correlation_clear_rs/climate_intercor/cor_s2e_par_prec.nc"
-  cal_cor(var_dat,fileout)
-  
-}
-###### radiation feedback
-sos_eos<-cbind(sos,p2e_par)
-nc_out_f3<-"./analysis/correlation_clear_rs/cor_sos_p2e_par.nc"
-cal_cor(sos_eos,nc_out_f3)
-
-sos_eos<-cbind(eos,p2e_par)
-nc_out_f3<-"./analysis/correlation_clear_rs/cor_eos_p2e_par.nc"
-cal_cor(sos_eos,nc_out_f3)
-
-sos_eos<-cbind(p2s_csif,p2e_par)
-nc_out_f3<-"./analysis/correlation_clear_rs/cor_p2e_sif_par.nc"
-cal_cor(sos_eos,nc_out_f3)
-
-
-sos_eos<-cbind(eos,p2e_par,p2e_temp,p2e_prec)
-nc_out_f3<-"./analysis/correlation_clear_rs/pcor_eos_p2e_par.nc"
-cal_pcor(sos_eos,nc_out_f3)
-
-sos_eos<-cbind(p2s_csif,p2e_par,p2e_temp,p2e_prec)
-nc_out_f3<-"./analysis/correlation_clear_rs/pcor_p2e_sif_par.nc"
-cal_pcor(sos_eos,nc_out_f3)
-
 
 
 
