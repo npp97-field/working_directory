@@ -341,7 +341,8 @@ calculate_climate<-function(year){
   if (file.exists(year_climate)){
     file.remove(year_climate)
   }
-  phenoin<-nc_create(year_climate,list(s2e_tday,s2e_tnight,s2p_tday,s2p_tnight,p2e_tday,p2e_tnight,
+  phenoin<-nc_create(year_climate,list(s2e_tday,s2p_tday,p2e_tday,
+                                       s2e_tnight,s2p_tnight,p2e_tnight,
                                        s2e_prec,s2p_prec,p2e_prec,
                                        s2e_par,s2p_par,p2e_par,
                                        pre_start1_tday,pre_end1_tday,p_tday,
@@ -434,121 +435,169 @@ library(ncdf4)
 setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/")
 sif_pheno<-list.files("./pheno_hd_fixed_threshold_clear/",full.names = T,pattern = ".nc")
 sif_climate<-list.files("./pheno_hd_fixed_threshold_climate/clear_rs/",full.names = T,pattern = ".nc")
-sif_climate_era<-list.files("./pheno_hd_fixed_threshold_climate/clear_era/",full.names = T,pattern = ".nc")
+#sif_climate_era<-list.files("./pheno_hd_fixed_threshold_climate/clear_era/",full.names = T,pattern = ".nc")
 
-p2e_csif<-array(NA,dim=c(86400,16))
-s2p_csif<-array(NA,dim=c(86400,16))
-s2e_csif<-array(NA,dim=c(86400,16))
-ann_csif<-array(NA,dim=c(86400,16))
-sos<-array(NA,dim=c(86400,16))
-eos<-array(NA,dim=c(86400,16))
+p2e_csif<-array(NA,dim=c(86400,14))
+s2p_csif<-array(NA,dim=c(86400,14))
+s2e_csif<-array(NA,dim=c(86400,14))
+ann_csif<-array(NA,dim=c(86400,14))
+sos<-array(NA,dim=c(86400,14))
+eos<-array(NA,dim=c(86400,14))
 
-s2e_tday<-array(NA,dim=c(86400,16))
-s2e_tnight<-array(NA,dim=c(86400,16))
-s2p_tday<-array(NA,dim=c(86400,16))
-s2p_tnight<-array(NA,dim=c(86400,16))
-p2e_tday<-array(NA,dim=c(86400,16))
-p2e_tnight<-array(NA,dim=c(86400,16))
+s2e_tday<-array(NA,dim=c(86400,14))
+s2e_tnight<-array(NA,dim=c(86400,14))
+s2p_tday<-array(NA,dim=c(86400,14))
+s2p_tnight<-array(NA,dim=c(86400,14))
+p2e_tday<-array(NA,dim=c(86400,14))
+p2e_tnight<-array(NA,dim=c(86400,14))
 
-s2e_prec<-array(NA,dim=c(86400,16))
-s2p_prec<-array(NA,dim=c(86400,16))
-p2e_prec<-array(NA,dim=c(86400,16))
+s2e_prec<-array(NA,dim=c(86400,14))
+s2p_prec<-array(NA,dim=c(86400,14))
+p2e_prec<-array(NA,dim=c(86400,14))
 
-s2e_par<-array(NA,dim=c(86400,16))
-s2p_par<-array(NA,dim=c(86400,16))
-p2e_par<-array(NA,dim=c(86400,16))
+s2e_par<-array(NA,dim=c(86400,14))
+s2p_par<-array(NA,dim=c(86400,14))
+p2e_par<-array(NA,dim=c(86400,14))
 
-pre_start1_tday<-array(NA,dim=c(86400,16))
-pre_end1_tday<-array(NA,dim=c(86400,16))
-p_tday<-array(NA,dim=c(86400,16))
+pre_start1_tday<-array(NA,dim=c(86400,14))
+pre_end1_tday<-array(NA,dim=c(86400,14))
+p_tday<-array(NA,dim=c(86400,14))
 
-pre_start1_tnight<-array(NA,dim=c(86400,16))
-pre_end1_tnight<-array(NA,dim=c(86400,16))
-p_tnight<-array(NA,dim=c(86400,16))
+pre_start1_tnight<-array(NA,dim=c(86400,14))
+pre_end1_tnight<-array(NA,dim=c(86400,14))
+p_tnight<-array(NA,dim=c(86400,14))
 
-pre_start1_par<-array(NA,dim=c(86400,16))
-pre_end1_par<-array(NA,dim=c(86400,16))
-p_par<-array(NA,dim=c(86400,16))
+pre_start1_par<-array(NA,dim=c(86400,14))
+pre_end1_par<-array(NA,dim=c(86400,14))
+p_par<-array(NA,dim=c(86400,14))
 
-pre_start1_prec<-array(NA,dim=c(86400,16))
-pre_end1_prec<-array(NA,dim=c(86400,16))
-p_prec<-array(NA,dim=c(86400,16))
+pre_start1_prec<-array(NA,dim=c(86400,14))
+pre_end1_prec<-array(NA,dim=c(86400,14))
+p_prec<-array(NA,dim=c(86400,14))
 
-pre_start2_tday<-array(NA,dim=c(86400,16))
-pre_end2_tday<-array(NA,dim=c(86400,16))
+pre_start2_tday<-array(NA,dim=c(86400,14))
+pre_end2_tday<-array(NA,dim=c(86400,14))
 
-pre_start2_tnight<-array(NA,dim=c(86400,16))
-pre_end2_tnight<-array(NA,dim=c(86400,16))
+pre_start2_tnight<-array(NA,dim=c(86400,14))
+pre_end2_tnight<-array(NA,dim=c(86400,14))
 
-pre_start2_par<-array(NA,dim=c(86400,16))
-pre_end2_par<-array(NA,dim=c(86400,16))
+pre_start2_par<-array(NA,dim=c(86400,14))
+pre_end2_par<-array(NA,dim=c(86400,14))
 
-pre_start2_prec<-array(NA,dim=c(86400,16))
-pre_end2_prec<-array(NA,dim=c(86400,16))
+pre_start2_prec<-array(NA,dim=c(86400,14))
+pre_end2_prec<-array(NA,dim=c(86400,14))
 
-pre_start3_tday<-array(NA,dim=c(86400,16))
-pre_end3_tday<-array(NA,dim=c(86400,16))
+pre_start3_tday<-array(NA,dim=c(86400,14))
+pre_end3_tday<-array(NA,dim=c(86400,14))
 
-pre_start3_tnight<-array(NA,dim=c(86400,16))
-pre_end3_tnight<-array(NA,dim=c(86400,16))
+pre_start3_tnight<-array(NA,dim=c(86400,14))
+pre_end3_tnight<-array(NA,dim=c(86400,14))
 
-pre_start3_par<-array(NA,dim=c(86400,16))
-pre_end3_par<-array(NA,dim=c(86400,16))
+pre_start3_par<-array(NA,dim=c(86400,14))
+pre_end3_par<-array(NA,dim=c(86400,14))
 
-pre_start3_prec<-array(NA,dim=c(86400,16))
-pre_end3_prec<-array(NA,dim=c(86400,16))
+pre_start3_prec<-array(NA,dim=c(86400,14))
+pre_end3_prec<-array(NA,dim=c(86400,14))
 
-pre_start0_tday<-array(NA,dim=c(86400,16))
-pre_end0_tday<-array(NA,dim=c(86400,16))
+pre_start0_tday<-array(NA,dim=c(86400,14))
+pre_end0_tday<-array(NA,dim=c(86400,14))
 
-pre_start0_tnight<-array(NA,dim=c(86400,16))
-pre_end0_tnight<-array(NA,dim=c(86400,16))
+pre_start0_tnight<-array(NA,dim=c(86400,14))
+pre_end0_tnight<-array(NA,dim=c(86400,14))
 
-pre_start0_par<-array(NA,dim=c(86400,16))
-pre_end0_par<-array(NA,dim=c(86400,16))
+pre_start0_par<-array(NA,dim=c(86400,14))
+pre_end0_par<-array(NA,dim=c(86400,14))
 
-pre_start0_prec<-array(NA,dim=c(86400,16))
-pre_end0_prec<-array(NA,dim=c(86400,16))
+pre_start0_prec<-array(NA,dim=c(86400,14))
+pre_end0_prec<-array(NA,dim=c(86400,14))
 
 
-for (year in 2001:2016){
+for (year in 2003:2016){
   year_pheno<-sif_pheno[substr(basename(sif_pheno),35,38)==year]
   phenoin<-nc_open(year_pheno)
-  p2e_csif[,year-2000]<-ncvar_get(phenoin,'p2s_csif')
-  s2p_csif[,year-2000]<-ncvar_get(phenoin,'s2p_csif')
-  s2e_csif[,year-2000]<-ncvar_get(phenoin,'s2s_csif')
-  ann_csif[,year-2000]<-ncvar_get(phenoin,'ann_csif')
-  sos[,year-2000]<-ncvar_get(phenoin,'SOS')*365+2.5
-  eos[,year-2000]<-ncvar_get(phenoin,'EOS')*365+2.5
+  p2e_csif[,year-2002]<-ncvar_get(phenoin,'p2s_csif')
+  s2p_csif[,year-2002]<-ncvar_get(phenoin,'s2p_csif')
+  s2e_csif[,year-2002]<-ncvar_get(phenoin,'s2s_csif')
+  ann_csif[,year-2002]<-ncvar_get(phenoin,'ann_csif')
+  sos[,year-2002]<-ncvar_get(phenoin,'SOS')*365+2.5
+  eos[,year-2002]<-ncvar_get(phenoin,'EOS')*365+2.5
   xdim<-phenoin$dim[["longitude"]]
   ydim<-phenoin$dim[["latitude"]]
   nc_close(phenoin)
 }
 
 
-for (year in 2001:2016){
+for (year in 2003:2016){
   year_climate<-sif_climate[substr(basename(sif_climate),1,4)==year]
   climatein<-nc_open(year_climate)
   
-  s2e_temp[,year-2000]<-ncvar_get(climatein,'s2e_temp')
-  s2e_prec[,year-2000]<-ncvar_get(climatein,'s2e_prec')
-  s2e_par[,year-2000]<-ncvar_get(climatein,'s2e_par')
-  s2p_temp[,year-2000]<-ncvar_get(climatein,'s2p_temp')
-  s2p_prec[,year-2000]<-ncvar_get(climatein,'s2p_prec')
-  s2p_par[,year-2000]<-ncvar_get(climatein,'s2p_par')
-  p2e_temp[,year-2000]<-ncvar_get(climatein,'p2e_temp')
-  p2e_prec[,year-2000]<-ncvar_get(climatein,'p2e_prec')
-  p2e_par[,year-2000]<-ncvar_get(climatein,'p2e_par')
-  p_temp[,year-2000]<-ncvar_get(climatein,'p_temp')
-  pre_start_temp[,year-2000]<-ncvar_get(climatein,'pre_start_temp')
-  pre_end_temp[,year-2000]<-ncvar_get(climatein,'pre_end_temp')
-  p_par[,year-2000]<-ncvar_get(climatein,'p_par')
-  pre_start_par[,year-2000]<-ncvar_get(climatein,'pre_start_par')
-  pre_end_par[,year-2000]<-ncvar_get(climatein,'pre_end_par')
+  s2e_tday[,year-2002]<-ncvar_get(climatein,'s2e_tday')
+  s2e_tnight[,year-2002]<-ncvar_get(climatein,'s2e_tnight')
+  s2p_tday[,year-2002]<-ncvar_get(climatein,'s2p_tday')
+  s2p_tnight[,year-2002]<-ncvar_get(climatein,'s2p_tnight')
+  p2e_tday[,year-2002]<-ncvar_get(climatein,'p2e_tday')
+  p2e_tnight[,year-2002]<-ncvar_get(climatein,'p2e_tnight')
   
-  p_prec[,year-2000]<-ncvar_get(climatein,'p_prec')
-  pre_start_prec[,year-2000]<-ncvar_get(climatein,'pre_start_prec')
-  pre_end_prec[,year-2000]<-ncvar_get(climatein,'pre_end_prec')
+  s2e_prec[,year-2002]<-ncvar_get(climatein,'s2e_prec')
+  s2p_prec[,year-2002]<-ncvar_get(climatein,'s2p_prec')
+  p2e_prec[,year-2002]<-ncvar_get(climatein,'p2e_prec')
+  
+  s2e_par[,year-2002]<-ncvar_get(climatein,'s2e_par')
+  s2p_par[,year-2002]<-ncvar_get(climatein,'s2p_par')
+  p2e_par[,year-2002]<-ncvar_get(climatein,'p2e_par')
+  
+  pre_start1_tday[,year-2002]<-ncvar_get(climatein,'pre_start1_tday')
+  pre_end1_tday[,year-2002]<-ncvar_get(climatein,'pre_end1_tday')
+  p_tday[,year-2002]<-ncvar_get(climatein,'p_tday')
+  
+  pre_start1_tnight[,year-2002]<-ncvar_get(climatein,'pre_start1_tnight')
+  pre_end1_tnight[,year-2002]<-ncvar_get(climatein,'pre_end1_tnight')
+  p_tnight[,year-2002]<-ncvar_get(climatein,'p_tnight')
+  
+  pre_start1_par[,year-2002]<-ncvar_get(climatein,'pre_start1_par')
+  pre_end1_par[,year-2002]<-ncvar_get(climatein,'pre_end1_par')
+  p_par[,year-2002]<-ncvar_get(climatein,'p_par')
+  
+  pre_start1_prec[,year-2002]<-ncvar_get(climatein,'pre_start1_prec')
+  pre_end1_prec[,year-2002]<-ncvar_get(climatein,'pre_end1_prec')
+  p_prec[,year-2002]<-ncvar_get(climatein,'p_prec')
+  
+  pre_start2_tday[,year-2002]<-ncvar_get(climatein,'pre_start2_tday')
+  pre_end2_tday[,year-2002]<-ncvar_get(climatein,'pre_end2_tday')
+  
+  pre_start2_tnight[,year-2002]<-ncvar_get(climatein,'pre_start2_tnight')
+  pre_end2_tnight[,year-2002]<-ncvar_get(climatein,'pre_end2_tnight')
+  
+  pre_start2_par[,year-2002]<-ncvar_get(climatein,'pre_start2_par')
+  pre_end2_par[,year-2002]<-ncvar_get(climatein,'pre_end2_par')
+  
+  pre_start2_prec[,year-2002]<-ncvar_get(climatein,'pre_start2_prec')
+  pre_end2_prec[,year-2002]<-ncvar_get(climatein,'pre_end2_prec')
+  
+  pre_start3_tday[,year-2002]<-ncvar_get(climatein,'pre_start3_tday')
+  pre_end3_tday[,year-2002]<-ncvar_get(climatein,'pre_end3_tday')
+  
+  pre_start3_tnight[,year-2002]<-ncvar_get(climatein,'pre_start3_tnight')
+  pre_end3_tnight[,year-2002]<-ncvar_get(climatein,'pre_end3_tnight')
+  
+  pre_start3_par[,year-2002]<-ncvar_get(climatein,'pre_start3_par')
+  pre_end3_par[,year-2002]<-ncvar_get(climatein,'pre_end3_par')
+  
+  pre_start3_prec[,year-2002]<-ncvar_get(climatein,'pre_start3_prec')
+  pre_end3_prec[,year-2002]<-ncvar_get(climatein,'pre_end3_prec')
+  
+  pre_start0_tday[,year-2002]<-ncvar_get(climatein,'pre_start0_tday')
+  pre_end0_tday[,year-2002]<-ncvar_get(climatein,'pre_end0_tday')
+  
+  pre_start0_tnight[,year-2002]<-ncvar_get(climatein,'pre_start0_tnight')
+  pre_end0_tnight[,year-2002]<-ncvar_get(climatein,'pre_end0_tnight')
+  
+  pre_start0_par[,year-2002]<-ncvar_get(climatein,'pre_start0_par')
+  pre_end0_par[,year-2002]<-ncvar_get(climatein,'pre_end0_par')
+  
+  pre_start0_prec[,year-2002]<-ncvar_get(climatein,'pre_start0_prec')
+  pre_end0_prec[,year-2002]<-ncvar_get(climatein,'pre_end0_prec')
+
   nc_close(climatein)
 }
 
@@ -556,15 +605,15 @@ calculate_partial_correlation<-function(dat){
   if (sum(is.na(dat))>=1)
     return(c(NA,NA))
   n<-length(dat)
-  dim(dat)<-c(16,n/16)
-  pcor_re<-pcor.test(dat[,1],dat[,2],dat[,3:(n/16)],method="pearson")
+  dim(dat)<-c(14,n/14)
+  pcor_re<-pcor.test(dat[,1],dat[,2],dat[,3:(n/14)],method="pearson")
   return(c(pcor_re$estimate,pcor_re$p.value))
 }
 
 calculate_correlation<-function(dat){
   if (sum(is.na(dat))>=1)
     return(c(NA,NA))
-  dim(dat)<-c(16,2)
+  dim(dat)<-c(14,2)
   cor_re<-cor.test(dat[,1],dat[,2],method="pearson")
   return(c(cor_re$estimate,cor_re$p.value))
 }
@@ -631,7 +680,7 @@ if (T){
   cal_cor(sos_csif,fileout)
   
   ##########calculate the pcor between sos and csif_S2S
-  sos_csif<-cbind(sos,s2e_csif,s2e_temp,s2e_prec)
+  sos_csif<-cbind(sos,s2e_csif,s2e_tday,s2e_prec)
   fileout<-"./analysis/correlation_clear_rs/pcor_sos_csif_s2e.nc"
   cal_pcor(sos_csif,fileout)
   
@@ -698,7 +747,6 @@ if (T){
   fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_prec.nc"
   cal_cor(sos_eos,fileout)
   
-  
   ####################################     PAR
   sos_eos<-cbind(sos,pre_start1_par)
   fileout<-"./analysis/correlation_clear_rs/cor_sos_pre1_par.nc"
@@ -712,7 +760,11 @@ if (T){
   sos_eos<-cbind(sos,pre_start0_par)
   fileout<-"./analysis/correlation_clear_rs/cor_sos_pre0_prec.nc"
   cal_cor(sos_eos,fileout)
-  
+}
+
+
+if(T){
+
   ############ eos and late season temperature
   eos_eos<-cbind(eos,pre_end1_tday)
   fileout<-"./analysis/correlation_clear_rs/cor_eos_pre1_tday.nc"
@@ -769,45 +821,6 @@ if (T){
   fileout<-"./analysis/correlation_clear_rs/cor_eos_pre0_prec.nc"
   cal_cor(eos_eos,fileout)
 
-}
-
-
-###### temperature feedbacks
-if (T){
-  #################################### spring temperature and fall temperature
-  pre_start_pre_end<-cbind(pre_start_temp,pre_end_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_pre_start_pre_end_temp.nc"
-  cal_cor(pre_start_pre_end,nc_out_f3)
-  
-  s2p_p2e<-cbind(s2p_temp,p2e_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_s2p_p2e_temp.nc"
-  cal_cor(s2p_p2e,nc_out_f3)
-  
-  
-  ############################### growing season temp precip and growing season CSIF
-  s2s_sif_temp<-cbind(s2s_csif,s2e_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_s2s_sif_s2s_temp.nc"
-  cal_cor(s2s_sif_temp,nc_out_f3)
-  
-  
-  s2s_sif_prec<-cbind(s2s_csif,s2e_prec)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_s2s_sif_s2s_precip.nc"
-  cal_cor(s2s_sif_prec,nc_out_f3)
-  
-  ############################### pre EOS and peak2end temp
-  s2s_sif_prec<-cbind(pre_end_temp,p2e_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_preEOS_p2e_temp.nc"
-  cal_cor(s2s_sif_prec,nc_out_f3)
-  
-  ############################### pre SOS and start2peak temp
-  s2s_sif_prec<-cbind(pre_start_temp,s2p_temp)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_preSOS_s2p_temp.nc"
-  cal_cor(s2s_sif_prec,nc_out_f3)
-  
-  ############################### s2p sif and p2e sif
-  s2s_sif_prec<-cbind(s2p_csif,p2s_csif)
-  nc_out_f3<-"./analysis/correlation_clear_rs/cor_s2p_p2s_csif.nc"
-  cal_cor(s2s_sif_prec,nc_out_f3)
 }
 
 
