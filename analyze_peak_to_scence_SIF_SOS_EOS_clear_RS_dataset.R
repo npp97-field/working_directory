@@ -84,10 +84,9 @@ par_day<-t(par_d)
 
 
 #all climate data starts from 2002 to 2016
-precip_day<-precip_data[,,731:6205]
-dim(precip_day)<-c(86400,5475)
-
-par_day<-par_day[,366:5840]
+precip_day<-precip_data[,,731:6205]   #unit daily precipitation mm/day
+dim(precip_day)<-c(86400,5475)        
+par_day<-par_day[,366:5840]           #PAR  w/m2
 
 
 get_mean<-function(xts){
