@@ -418,7 +418,7 @@ pre_end0_par<-array(NA,dim=c(86400,16))
 pre_start0_prec<-array(NA,dim=c(86400,16))
 pre_end0_prec<-array(NA,dim=c(86400,16))
 
-
+### read in phenology and sif data
 for (year in 2001:2016){
   year_pheno<-sif_pheno[substr(basename(sif_pheno),35,38)==year]
   phenoin<-nc_open(year_pheno)
@@ -433,7 +433,7 @@ for (year in 2001:2016){
   nc_close(phenoin)
 }
 
-
+###read in climate data
 for (year in 2001:2016){
   year_climate<-sif_climate[substr(basename(sif_climate),1,4)==year]
   climatein<-nc_open(year_climate)
@@ -606,8 +606,6 @@ if (T){
   cal_cor(sos_eos,fileout)
 }
 
-
-
 ###### calculate the controlling factors of SOS EOS
 if (T){
   ##########calculate the cor between sos and eos and pre season temp
@@ -695,48 +693,20 @@ if (T){
   eos_eos<-cbind(eos,pre_end0_par)
   fileout<-"./analysis/correlation_clear_era/cor_eos_pre0_par.nc"
   cal_cor(eos_eos,fileout)
-  
 }
 
-# 
-# ###### temperature feedbacks
-# if (T){
-#   #################################### spring temperature and fall temperature
-#   pre_start_pre_end<-cbind(pre_start_temp,pre_end_temp)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_pre_start_pre_end_temp.nc"
-#   cal_cor(pre_start_pre_end,nc_out_f3)
-#   
-#   s2p_p2e<-cbind(s2p_temp,p2e_temp)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_s2p_p2e_temp.nc"
-#   cal_cor(s2p_p2e,nc_out_f3)
-#   
-#   
-#   ############################### growing season temp precip and growing season CSIF
-#   s2s_sif_temp<-cbind(s2s_csif,s2e_temp)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_s2s_sif_s2s_temp.nc"
-#   cal_cor(s2s_sif_temp,nc_out_f3)
-#   
-#   
-#   s2s_sif_prec<-cbind(s2s_csif,s2e_prec)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_s2s_sif_s2s_precip.nc"
-#   cal_cor(s2s_sif_prec,nc_out_f3)
-#   
-#   ############################### pre EOS and peak2end temp
-#   s2s_sif_prec<-cbind(pre_end_temp,p2e_temp)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_preEOS_p2e_temp.nc"
-#   cal_cor(s2s_sif_prec,nc_out_f3)
-#   
-#   ############################### pre SOS and start2peak temp
-#   s2s_sif_prec<-cbind(pre_start_temp,s2p_temp)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_preSOS_s2p_temp.nc"
-#   cal_cor(s2s_sif_prec,nc_out_f3)
-#   
-#   ############################### s2p sif and p2e sif
-#   s2s_sif_prec<-cbind(s2p_csif,p2s_csif)
-#   nc_out_f3<-"./analysis/correlation_clear_era/cor_s2p_p2s_csif.nc"
-#   cal_cor(s2s_sif_prec,nc_out_f3)
-# }
-# 
-# 
+#partial correlation between climate and temp
+if (T){
+  ##########calculate the pcor between eos and pre season tday
+  cli_eos<-cbind(eos,pre_end1_temp,pre_end1_par,pre_end1_prec)
+  fileout<-"./analysis/correlation_clear_era/pcor_sos_pre1_tday.nc"
+  cal_pcor(cli_eos,fileout)
+  cli_eos<-cbind(eos,pre_end1_par,pre_end1_temp,pre_end1_prec)
+  fileout<-"./analysis/correlation_clear_era/pcor_sos_pre1_par.nc"
+  cal_pcor(cli_eos,fileout)
+  cli_eos<-cbind(eos,pre_end1_prec,pre_end1_par,pre_end1_temp)
+  fileout<-"./analysis/correlation_clear_era/pcor_sos_pre1_prec.nc"
+  cal_pcor(cli_eos,fileout)
+}
 
 

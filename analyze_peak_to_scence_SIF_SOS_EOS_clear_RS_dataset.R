@@ -823,5 +823,16 @@ if(T){
 }
 
 
-
-
+###
+if (T){
+  ##########calculate the pcor between eos and pre season tday
+  cli_eos<-cbind(eos,pre_end1_tday,pre_end1_par,pre_end1_prec)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_pre1_tday.nc"
+  cal_pcor(cli_eos,fileout)
+  cli_eos<-cbind(eos,pre_end1_par,pre_end1_tday,pre_end1_prec)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_pre1_par.nc"
+  cal_pcor(cli_eos,fileout)
+  cli_eos<-cbind(eos,pre_end1_prec,pre_end1_par,pre_end1_tday)
+  fileout<-"./analysis/correlation_clear_rs/pcor_sos_pre1_prec.nc"
+  cal_pcor(cli_eos,fileout)
+}
