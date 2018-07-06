@@ -8,6 +8,18 @@ lst_color_ramp<-rev(rgb(read.csv("/Users/yzhang/Dropbox/YAOZHANG/code/R-code/too
 ano_color_ramp<-rev(rgb(read.csv("/Users/yzhang/Dropbox/YAOZHANG/code/R-code/tools/R_graph/lst_ano.csv",header = F)/255))
 ano_discrete_ramp<-c(ano_color_ramp[c(1,26,51,76,101)],"grey80","grey80",ano_color_ramp[c(140,165,190,215,240)])
 ano_discrete_ramp_leg<-rep(ano_discrete_ramp,each=20)
+jet.color <-colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan",
+                                   "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))(100)
+ano_col_gmt<-rgb(read.csv("/Users/yzhang/Dropbox/YAOZHANG/code/R-code/tools/R_graph/ano_col.csv",header = F))
+drought_discrete<-rgb(
+  matrix(c(0, 151,  92,
+           113, 185, 117,
+           192, 217, 150,
+           255, 252, 193,
+           252, 195, 119,
+           249, 130,  63,
+           238,  40,  32), ncol=3,nrow=7,byrow = T)/255)
+
 
 longlat <-  CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0")
 ae<-"+proj=aeqd +lat_0=90 +lon_0=-0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
