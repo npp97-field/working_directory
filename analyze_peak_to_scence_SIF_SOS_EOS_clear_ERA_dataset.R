@@ -650,7 +650,7 @@ if (T){
   fileout<-"./analysis/correlation_clear_era/cor_sos_pre3_par.nc"
   cal_cor(sos_eos,fileout)
   sos_eos<-cbind(sos,pre_start0_par)
-  fileout<-"./analysis/correlation_clear_era/cor_sos_pre0_prec.nc"
+  fileout<-"./analysis/correlation_clear_era/cor_sos_pre0_par.nc"
   cal_cor(sos_eos,fileout)
   
   ############ eos and late season temperature
@@ -693,7 +693,7 @@ if (T){
   fileout<-"./analysis/correlation_clear_era/cor_eos_pre3_par.nc"
   cal_cor(eos_eos,fileout)
   eos_eos<-cbind(eos,pre_end0_par)
-  fileout<-"./analysis/correlation_clear_era/cor_eos_pre0_prec.nc"
+  fileout<-"./analysis/correlation_clear_era/cor_eos_pre0_par.nc"
   cal_cor(eos_eos,fileout)
   
 }
