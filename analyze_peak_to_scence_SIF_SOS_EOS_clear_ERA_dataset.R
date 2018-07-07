@@ -699,7 +699,7 @@ if (T){
 if (T){
   ##########calculate the pcor between eos and pre season tday
   cli_eos<-cbind(eos,pre_end1_temp,pre_end1_par,pre_end1_prec)
-  fileout<-"./analysis/correlation_clear_era/pcor_eos_pre1_tday.nc"
+  fileout<-"./analysis/correlation_clear_era/pcor_eos_pre1_temp.nc"
   cal_pcor(cli_eos,fileout)
   cli_eos<-cbind(eos,pre_end1_par,pre_end1_temp,pre_end1_prec)
   fileout<-"./analysis/correlation_clear_era/pcor_eos_pre1_par.nc"
