@@ -57,11 +57,11 @@ export_nc<-function(outdata,outfile){
 
 pet<-get_annual_average("pet")
 pre<-get_annual_average("pre")
-ai<-pet/pre/30*100
+ai<-pre/(pet*30)
 #dim(ai)<-c(120,720)
 out_put<-cbind(pet,pre,ai)
 
-outfile<-"/rigel/glab/users/zy2309/PROJECT/SIF_phenology/analysis/climate/ai_cru.nc"
+outfile<-"/rigel/glab/users/zy2309/PROJECT/SIF_phenology/analysis/climate/ai_cru_P_PET.nc"
 export_nc(out_put,outfile)
 
 

@@ -87,3 +87,14 @@ coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
 cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
+convertraster2points<-function(pval){
+  ras_pval<-raster(apply(pval,1,rev))
+  extent(ras_pval)<-c(-180,180,30,90)
+  projection(ras_pval)<-longlat
+  coarse_pval<-aggregate(ras_pval, fact=4, fun=mean,na.rm=T)
+  sig_2deg<-coarse_pval> 0.5
+  sig_2deg[sig_2deg==0]<-NA
+  sig_point<-coordinates(sig_2deg)[!is.na(values(sig_2deg)),]
+  ae_sig_point<-project(sig_point,proj = ae)
+  return(ae_sig_point)
+}
