@@ -109,6 +109,20 @@ convertraster2points<-function(pval){
   return(ae_sig_point)
 }
 
+### export nc
+exportnc<-function(dat,fileout){
+  longi<-seq(-179.75,179.75,0.5)
+  lati<-seq(30.25,89.75,0.5)
+  xdim <-ncdim_def("longitude",units = "",vals = longi)
+  ydim<-ncdim_def("latitude",units = "",vals = lati)
+  dim(dat)<-c(720,120)
+  dat_nc<-ncvar_def("max_cor",'',list(xdim,ydim),-999.9,prec="double",compression=9)
+  ncout<-nc_create(fileout,list(dat_nc))
+  ncvar_put(ncout,dat_nc,dat)
+  nc_close(ncout) 
+}
+
+
 graph_maximum_lags<-function(dataset,phen="sos"){
   if (dataset=="rs"){
     vars = c("tday","tnight",'prec','par')
@@ -121,7 +135,7 @@ graph_maximum_lags<-function(dataset,phen="sos"){
   n_row = length(vars)  
   lay_out = c(n_col,n_row)
   phen_files<-list.files(paste("/Users/yzhang/Project/SIF_phenology/analysis/correlation_clear_",dataset,"/",sep=""),
-                        pattern=paste("cor_",phen,"_pre",sep=""),full.names = T)
+                        pattern=paste("^cor_",phen,"_pre",sep=""),full.names = T)
   pdf(paste("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/figures/",phen,"_",
             dataset,"_max_lag.pdf",sep=''),width=8.5,height=14/4*n_row)
   for (v in 1:length(vars)){
@@ -153,6 +167,11 @@ graph_maximum_lags<-function(dataset,phen="sos"){
     nc_var_ae<-nc2ae(max_cor)
     nc_max_ae<-nc2ae(maxind)-1
     nc_sig_ae<-convertraster2points(max_sig<0.05)
+    
+    ##export maximum correaltion
+    exportnc(max_cor,paste("/Users/yzhang/Project/SIF_phenology/analysis/correlation_clear_",
+                              dataset,"/max_correlation_",phen,"_",vars[v],".nc",sep=""))
+
     plot_nc_var_sig(nc_var_ae,nc_sig_ae,c(-1,1),exp_var[[v]],notion[v*2-1],rev(ano_col_gmt),
                     c(1,n_row+1-v),c(2,n_row))
     plot_nc_var(nc_max_ae,c(-0.5,3.5),exp_var[[v]],notion[v*2],rev(discrete_col),
