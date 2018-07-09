@@ -139,12 +139,12 @@ pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_cl
 ##  a
 par(fig=c(0,0.33,0.5,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0))
 plot(border)
-plot(cropland,col='grey',lwd=0.2,add=T)
+plot(cropland,col='azure2',lwd=0.2,add=T)
 plotlatlong()
 
 
 points(proj_site,col=site_col,pch=site_pch)
-mtext(side=2,line=-1.5,"a",cex=1.8,font=2,padj=-7,las=2)
+mtext(side=2,line=-0.5,"a",cex=1,font=2,padj=-13,las=2)
 # text(0,-6500000,expression(0*degree),cex=0.5)
 # text(0,6500000,expression(180*degree),cex=0.5)
 # text(-6700000,0,expression(90*degree*W),cex=0.5)
@@ -170,7 +170,7 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02,las=2)
 mtext(side=1,line=1.8,expression(paste("CSIF (mW m"^-2,"nm"^-1,"sr"^-1,")",sep="")))
 mtext(side=2,line=1.8,expression(paste("GPP (gC m"^-2,"day"^-1,")",sep="")))
-mtext(side=2,line=1.5,'b',cex=1.8,font=2,padj=-6,las=2)
+mtext(side=2,line=2.5,'b',cex=1,font=2,padj=-11,las=2)
 box()
 
 
@@ -198,9 +198,9 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=1,line=1.8,expression("SOS"[EC]) )
-mtext(side=2,line=1.8,expression("SOS"[CSIF]))
-mtext(side=2,line=1.5,'d',cex=1.8,font=2,padj=-6,las=2)
+mtext(side=1,line=1.8,expression("SOP"[EC]) )
+mtext(side=2,line=1.8,expression("SOP"[CSIF]))
+mtext(side=2,line=2.5,'c',cex=1,font=2,padj=-11,las=2)
 #### -----------------------------------------
 ##  d
 par(fig=c(0.33,0.66,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
@@ -225,9 +225,9 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=1,line=1.8,expression("EOS"[EC]) )
-mtext(side=2,line=1.8,expression("EOS"[CSIF]))
-mtext(side=2,line=1.5,'e',cex=1.8,font=2,padj=-6,las=2)
+mtext(side=1,line=1.8,expression("EOP"[EC]) )
+mtext(side=2,line=1.8,expression("EOP"[CSIF]))
+mtext(side=2,line=2.5,'d',cex=1,font=2,padj=-11,las=2)
 
 
 #### -----------------------------------------
@@ -254,9 +254,9 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=1,line=1.8,expression("SOS"[EC]) )
-mtext(side=2,line=1.8,expression("SOS"[CSIF]))
-mtext(side=2,line=1.5,'e',cex=1.8,font=2,padj=-6,las=2)
+mtext(side=1,line=1.8,expression("SOP"[EC]) )
+mtext(side=2,line=1.8,expression("SOP"[CSIF]))
+mtext(side=2,line=2.5,'e',cex=1,font=2,padj=-11,las=2)
 #### -----------------------------------------
 ##  f
 par(fig=c(0.66,1,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
@@ -278,12 +278,12 @@ text(40,-40+80/16*1.5,substitute(paste("RMSE=",a,sep=""),
 
 
 axis(1,tck = -0.02)
-axis(2,las=2,tck = -0.02)
+axis(2,las=2,las=2,tck = -0.02)
 box()
 abline(0,1,lty=3,col="grey70")
-mtext(side=1,line=1.8,expression("EOS"[EC]) )
-mtext(side=2,line=1.8,expression("EOS"[CSIF]))
-mtext(side=2,line=1.5,'f',cex=1.8,font=2,padj=-6,las=2)
+mtext(side=1,line=1.8,expression("EOP"[EC]) )
+mtext(side=2,line=1.8,expression("EOP"[CSIF]))
+mtext(side=2,line=2.5,'f',cex=1,font=2,padj=-11,las=2)
 
 dev.off()
 
