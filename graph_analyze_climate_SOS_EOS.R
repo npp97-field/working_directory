@@ -171,6 +171,8 @@ graph_maximum_lags<-function(dataset,phen="sos"){
     ##export maximum correaltion
     exportnc(max_cor,paste("/Users/yzhang/Project/SIF_phenology/analysis/correlation_clear_",
                               dataset,"/max_correlation_",phen,"_",vars[v],".nc",sep=""))
+    exportnc(max_sig,paste("/Users/yzhang/Project/SIF_phenology/analysis/correlation_clear_",
+                           dataset,"/max_significance_",phen,"_",vars[v],".nc",sep=""))
 
     plot_nc_var_sig(nc_var_ae,nc_sig_ae,c(-1,1),exp_var[[v]],notion[v*2-1],rev(ano_col_gmt),
                     c(1,n_row+1-v),c(2,n_row))
