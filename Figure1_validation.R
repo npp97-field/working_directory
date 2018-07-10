@@ -130,21 +130,76 @@ land<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_land.shp")#ne_110m_c
 repland<-gBuffer(spTransform(land,ae),byid=T,width=0)
 bordercrop<-gBuffer(border,byid=T,width=0)
 cropland<-intersect(repland,bordercrop)
+
+
+###read the stat data
 #cropcoast<-crop(coastline,extent(-180,180,30,90))
+csif<-read.csv("/Users/yzhang/Project/SIF_phenology/analysis/csif_stat/CSIF.csv")
+osif<-read.csv("/Users/yzhang/Project/SIF_phenology/analysis/csif_stat/OCO_2_SIF.csv")
+ndvi<-read.csv('/Users/yzhang/Project/SIF_phenology/analysis/csif_stat/ndvi.csv')
+evi<-read.csv('/Users/yzhang/Project/SIF_phenology/analysis/csif_stat/evi.csv')
+csif_yd<-rep(2014:2017,each=92)*1000+rep(1:92*4,4)-2
+csif_yd[c(92,184,276,368)]<-csif_yd[c(92,184,276,368)]-1
+csif_date<-strptime(csif_yd,format = "%Y%j")
+
+osif_yd<-osif$yearmonth*100+15
+osif_date<-strptime(osif_yd,format= "%Y%m%d")
+
+vi_yd<-rep(2014:2017,each=23)*1000+rep(1:23*16,4)-8
+vi_date<-strptime(vi_yd,format = "%Y%j")
+axis_yd<-2014:2018*10000+101
+axis_date<-strptime(axis_yd,format= "%Y%m%d")
+osif_yd<-osif$yearmonth*100+1
+osif_axis<-strptime(osif_yd,format= "%Y%m%d")
 
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_clear.pdf",width=11,height=7.5)
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_clear.pdf",width=11,height=11)
+
+par(fig=c(0,1,0.66,1),mar=c(3.4,3.4,1.4,7.4),mgp=c(3,0.3,0),oma=c(1,1,1,1))
+
+plot(NA,ylim=c(0,0.4),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
+lines(osif_date,osif$all,col="black",lwd=3)
+polygon(c(osif_date[c(1:43,45:48)],rev(osif_date[c(1:43,45:48)])),
+        c(osif$all[c(1:43,45:48)]+osif$all_sd[c(1:43,45:48)],
+          rev(osif$all[c(1:43,45:48)]-osif$all_sd[c(1:43,45:48)])),
+        col=adjustcolor('black',alpha.f = 0.2),border = NA)
+lines(csif_date,csif$all,col=adjustcolor('red',alpha.f = 0.7),lwd=3)
+polygon(c(csif_date,rev(csif_date)),c(csif$all+csif$all_sd,rev(csif$all-csif$all_sd)),
+        col=adjustcolor('red',alpha.f = 0.2),border = NA)
+
+axis(2,las=2,at=c(0:4/10),tck = -0.02)
+axis.POSIXct(1,at=axis_date,labels=format(axis_date,"%Y-%m-%d"),tck = -0.02)
+axis.POSIXct(1,at=osif_axis,labels=rep("",48),tck = -0.01)
+mtext(side=2,line=1.8,expression(paste("SIF (mW m"^-2,"nm"^-1,"sr"^-1,")",sep="")))
+mtext(side=4,line=1.8,expression("NDVI"),col='blue')
+box()
+par(new=T)
+plot(NA,ylim=c(0.2,0.85),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
+lines(vi_date,ndvi$all/10000,col="blue",lwd=3)
+# polygon(c(vi_date,rev(vi_date)),c(ndvi$all/10000+ndvi$all_sd/10000,rev(ndvi$all/10000-ndvi$all_sd/10000)),
+#         col=adjustcolor('blue',alpha.f = 0.2),border = NA)
+axis(4,las=2,at=c(2:9/10),tck = -0.02)
+par(new=T)
+plot(NA,ylim=c(0.1,0.5),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
+lines(vi_date,evi$all/10000,col="darkgreen",lwd=3)
+# polygon(c(vi_date,rev(vi_date)),c(evi$all/10000+evi$all_sd/10000,rev(evi$all/10000-evi$all_sd/10000)),
+#         col=adjustcolor('darkgreen',alpha.f = 0.2),border = NA)
+axis(4,line=3.5,las=2,at=c(1:5/10),tck = -0.02)
+mtext(side=4,line=5.3,expression("EVI"),col="darkgreen")
+mtext(side=2,line=2.5,'a',cex=1,font=2,padj=-11,las=2)
+legend("topleft",c(expression('SIF'[OCO-2]),"CSIF","NDVI","EVI"),
+       col=c('black',"red","blue",'darkgreen'),lty=c(1,1,1,1),lwd=c(3,3,3,3),bty="n")
 
 #### -----------------------------------------
 ##  a
-par(fig=c(0,0.33,0.5,1),mar=c(0.4,0.4,0.4,0.4),mgp=c(3,0.3,0))
+par(fig=c(0,0.33,0.33,0.66),mar=c(0.4,0.4,0.4,0.4),new=T)
 plot(border)
 plot(cropland,col='azure2',lwd=0.2,add=T)
 plotlatlong()
 
 
 points(proj_site,col=site_col,pch=site_pch)
-mtext(side=2,line=-0.5,"a",cex=1,font=2,padj=-13,las=2)
+mtext(side=2,line=-0.5,"b",cex=1,font=2,padj=-13,las=2)
 # text(0,-6500000,expression(0*degree),cex=0.5)
 # text(0,6500000,expression(180*degree),cex=0.5)
 # text(-6700000,0,expression(90*degree*W),cex=0.5)
@@ -155,7 +210,7 @@ legend("bottomright",lc_type,col=lc_col,pch=lc_pch,cex=0.7,bg = 'white')
 #### -----------------------------------------
 ##  b
 
-par(fig=c(0,0.33,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
+par(fig=c(0,0.33,0,0.33),mar=c(3.4,3.4,1.4,1.4),new=T)
 plot(NA,xlim=c(0, 1.),ylim=c(0,20),axes=F,xlab="",ylab="")
 #plot(NA,xlim=c(0, 1.3),ylim=c(0,1.3),axes=F,xlab="",ylab="")
 for (i in 1:7){
@@ -170,13 +225,13 @@ axis(1,tck = -0.02)
 axis(2,las=2,tck = -0.02,las=2)
 mtext(side=1,line=1.8,expression(paste("CSIF (mW m"^-2,"nm"^-1,"sr"^-1,")",sep="")))
 mtext(side=2,line=1.8,expression(paste("GPP (gC m"^-2,"day"^-1,")",sep="")))
-mtext(side=2,line=2.5,'b',cex=1,font=2,padj=-11,las=2)
+mtext(side=2,line=2.5,'c',cex=1,font=2,padj=-11,las=2)
 box()
 
 
 #### -----------------------------------------
 ##  c
-par(fig=c(0.33,0.66,0.5,1),mar=c(3.4,3.4,1.4,1.4),new=T)
+par(fig=c(0.33,0.66,0.33,0.66),mar=c(3.4,3.4,1.4,1.4),new=T)
 plot(NA,xlim=c(0, 220),ylim=c(0,220),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
@@ -200,10 +255,10 @@ box()
 abline(0,1,lty=3,col="grey70")
 mtext(side=1,line=1.8,expression("SOP"[EC]) )
 mtext(side=2,line=1.8,expression("SOP"[CSIF]))
-mtext(side=2,line=2.5,'c',cex=1,font=2,padj=-11,las=2)
+mtext(side=2,line=2.5,'d',cex=1,font=2,padj=-11,las=2)
 #### -----------------------------------------
 ##  d
-par(fig=c(0.33,0.66,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
+par(fig=c(0.33,0.66,0,0.33),mar=c(3.4,3.4,1.4,1.4),new=T)
 plot(NA,xlim=c(150, 365),ylim=c(150,365),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
@@ -227,12 +282,12 @@ box()
 abline(0,1,lty=3,col="grey70")
 mtext(side=1,line=1.8,expression("EOP"[EC]) )
 mtext(side=2,line=1.8,expression("EOP"[CSIF]))
-mtext(side=2,line=2.5,'d',cex=1,font=2,padj=-11,las=2)
+mtext(side=2,line=2.5,'e',cex=1,font=2,padj=-11,las=2)
 
 
 #### -----------------------------------------
 ##  e
-par(fig=c(0.66,1,0.5,1),mar=c(3.4,3.4,1.4,1.4),new=T)
+par(fig=c(0.66,1,0.33,0.66),mar=c(3.4,3.4,1.4,1.4),new=T)
 plot(NA,xlim=c(-40, 40),ylim=c(-40,40),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
@@ -256,10 +311,10 @@ box()
 abline(0,1,lty=3,col="grey70")
 mtext(side=1,line=1.8,expression("SOP"[EC]) )
 mtext(side=2,line=1.8,expression("SOP"[CSIF]))
-mtext(side=2,line=2.5,'e',cex=1,font=2,padj=-11,las=2)
+mtext(side=2,line=2.5,'f',cex=1,font=2,padj=-11,las=2)
 #### -----------------------------------------
 ##  f
-par(fig=c(0.66,1,0,0.5),mar=c(3.4,3.4,1.4,1.4),new=T)
+par(fig=c(0.66,1,0,0.33),mar=c(3.4,3.4,1.4,1.4),new=T)
 plot(NA,xlim=c(-40, 40),ylim=c(-40,40),axes=F,xlab="",ylab="")
 for (lc in 1:length(lc_type)){
   site_name_biome<-site_list$SITE_ID[site_list$IGBP==lc_type[lc]]
@@ -283,7 +338,7 @@ box()
 abline(0,1,lty=3,col="grey70")
 mtext(side=1,line=1.8,expression("EOP"[EC]) )
 mtext(side=2,line=1.8,expression("EOP"[CSIF]))
-mtext(side=2,line=2.5,'f',cex=1,font=2,padj=-11,las=2)
+mtext(side=2,line=2.5,'g',cex=1,font=2,padj=-11,las=2)
 
 dev.off()
 
