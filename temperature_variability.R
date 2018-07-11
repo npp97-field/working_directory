@@ -40,10 +40,28 @@ spline_interpolate<-function(x){
 
 
 tmean<-get_cru_var("tmp")
+### calculate the mean annual temperature
+if (F){
+  mean_annual_temprature<-apply(tmean,1,mean,na.rm=T)
+  lat = seq(30.25,89.75,0.5)
+  long = seq(-179.75,179.75,0.5)
+  
+  ydim<- ncdim_def("latitude",units = "deg",lat)
+  xdim<- ncdim_def('longitude',units='deg',long)
+  mean_temp<-ncvar_def("mean_annual_temp",'',list(xdim,ydim),-9999,compression=9)
+  temp_nc<-nc_create("/rigel/glab/users/zy2309/PROJECT/SIF_phenology/analysis/mean_annual_temp.nc",list(mean_temp))
+  ncvar_put(temp_nc,mean_temp,mean_annual_temprature)
+  nc_close(temp_nc)
+}
+###########---------------------------------
+
 precip<-get_cru_var('pre')
 
 temp_d<-apply(tmean,1,spline_interpolate)
 temp_day<-t(temp_d)
+dim(sd_var)<-c(720,120,12)
+dim(mean_var)<-c(720,120,12)
+
 
 radnc<-nc_open("/rigel/glab/users/zy2309/DATA/bess_hd_monthly_PAR.nc")
 rad<-ncvar_get(radnc,"PAR")
