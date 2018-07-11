@@ -152,59 +152,54 @@ axis_date<-strptime(axis_yd,format= "%Y%m%d")
 osif_yd<-osif$yearmonth*100+1
 osif_axis<-strptime(osif_yd,format= "%Y%m%d")
 
-
+data_col<-c("#E7003E","#FF7A00","#03899C","#5DE100")
 pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig1_mcd_0.3_30N_clear.pdf",width=11,height=11)
 
 par(fig=c(0,1,0.66,1),mar=c(3.4,3.4,1.4,7.4),mgp=c(3,0.3,0),oma=c(1,1,1,1))
 
 plot(NA,ylim=c(0,0.4),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
-lines(osif_date,osif$all,col="black",lwd=3)
+lines(osif_date,osif$all,col=data_col[1],lwd=3)
 polygon(c(osif_date[c(1:43,45:48)],rev(osif_date[c(1:43,45:48)])),
         c(osif$all[c(1:43,45:48)]+osif$all_sd[c(1:43,45:48)],
           rev(osif$all[c(1:43,45:48)]-osif$all_sd[c(1:43,45:48)])),
-        col=adjustcolor('black',alpha.f = 0.2),border = NA)
-lines(csif_date,csif$all,col=adjustcolor('red',alpha.f = 0.7),lwd=3)
+        col=adjustcolor(data_col[1],alpha.f = 0.2),border = NA)
+lines(csif_date,csif$all,col=adjustcolor(data_col[2],alpha.f = 0.7),lwd=3)
 polygon(c(csif_date,rev(csif_date)),c(csif$all+csif$all_sd,rev(csif$all-csif$all_sd)),
-        col=adjustcolor('red',alpha.f = 0.2),border = NA)
+        col=adjustcolor(data_col[2],alpha.f = 0.2),border = NA)
 
 axis(2,las=2,at=c(0:4/10),tck = -0.02)
 axis.POSIXct(1,at=axis_date,labels=format(axis_date,"%Y-%m-%d"),tck = -0.02)
 axis.POSIXct(1,at=osif_axis,labels=rep("",48),tck = -0.01)
 mtext(side=2,line=1.8,expression(paste("SIF (mW m"^-2,"nm"^-1,"sr"^-1,")",sep="")))
-mtext(side=4,line=1.8,expression("NDVI"),col='blue')
+mtext(side=4,line=1.8,expression("NDVI"),col=data_col[3])
 box()
 par(new=T)
 plot(NA,ylim=c(0.2,0.85),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
-lines(vi_date,ndvi$all/10000,col="blue",lwd=3)
+lines(vi_date,ndvi$all/10000,col=data_col[3],lwd=3)
 # polygon(c(vi_date,rev(vi_date)),c(ndvi$all/10000+ndvi$all_sd/10000,rev(ndvi$all/10000-ndvi$all_sd/10000)),
 #         col=adjustcolor('blue',alpha.f = 0.2),border = NA)
 axis(4,las=2,at=c(2:9/10),tck = -0.02)
 par(new=T)
 plot(NA,ylim=c(0.1,0.5),xlim=c(as.POSIXct(csif_date[1]),as.POSIXct(csif_date[368])),axes=F,xlab="",ylab="")
-lines(vi_date,evi$all/10000,col="darkgreen",lwd=3)
+lines(vi_date,evi$all/10000,col=data_col[4],lwd=3)
 # polygon(c(vi_date,rev(vi_date)),c(evi$all/10000+evi$all_sd/10000,rev(evi$all/10000-evi$all_sd/10000)),
 #         col=adjustcolor('darkgreen',alpha.f = 0.2),border = NA)
 axis(4,line=3.5,las=2,at=c(1:5/10),tck = -0.02)
-mtext(side=4,line=5.3,expression("EVI"),col="darkgreen")
+mtext(side=4,line=5.3,expression("EVI"),col=data_col[4])
 mtext(side=2,line=2.5,'a',cex=1,font=2,padj=-11,las=2)
 legend("topleft",c(expression('SIF'[OCO-2]),"CSIF","NDVI","EVI"),
-       col=c('black',"red","blue",'darkgreen'),lty=c(1,1,1,1),lwd=c(3,3,3,3),bty="n")
+       col=data_col,lty=c(1,1,1,1),lwd=c(3,3,3,3),bty="n")
 
 #### -----------------------------------------
 ##  a
 par(fig=c(0,0.33,0.33,0.66),mar=c(0.4,0.4,0.4,0.4),new=T)
 plot(border)
-plot(cropland,col='azure2',lwd=0.2,add=T)
+plot(cropland,col='beige',lwd=0.2,add=T)
 plotlatlong()
 
 
 points(proj_site,col=site_col,pch=site_pch)
 mtext(side=2,line=-0.5,"b",cex=1,font=2,padj=-13,las=2)
-# text(0,-6500000,expression(0*degree),cex=0.5)
-# text(0,6500000,expression(180*degree),cex=0.5)
-# text(-6700000,0,expression(90*degree*W),cex=0.5)
-# text(67000000,0,expression(90*degree*E),cex=0.5)
-#box()
 legend("bottomright",lc_type,col=lc_col,pch=lc_pch,cex=0.7,bg = 'white')
 
 #### -----------------------------------------
