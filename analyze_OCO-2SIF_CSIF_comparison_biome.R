@@ -11,8 +11,9 @@ lc_nc<-nc_open("./PROJECT/SIF_phenology/analysis/North_mcd12c1_landcover1_majori
 lc_data<-ncvar_get(lc_nc,varid = "lc1")
 nc_close(lc_nc)
 mask_nc<-nc_open("./PROJECT/SIF_phenology/analysis/North_barren_mask.nc")
-#mask_nc<-nc_open("/Users/yzhang/Project/SIF_phenology/data/North_barren_mask.nc")
 mask_data<-ncvar_get(mask_nc,varid="barren")
+# mask_nc<-nc_open("./PROJECT/SIF_phenology/analysis/global_land_mask.nc")
+# mask_data<-ncvar_get(mask_nc,varid="mask")
 nc_close(mask_nc)
 lc_data1<- lc_data
 lc_data1[lc_data>=1&lc_data<=5]<-1  #forest
