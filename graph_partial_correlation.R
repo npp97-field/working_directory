@@ -97,10 +97,5 @@ plot(sos_s2p, legend.only=TRUE,
 par(fig=c(0,1,0,1),new=T)
 plot(NA,axes=F,xlim=c(-1,1),ylim=c(-1.5,1.5),xaxs="i",yaxs='i')
 
-# text(0.94, 1.02, labels = expression('partial r'), xpd = NA, srt = -90,cex=1.1) 
-# text(0.94, 0, labels = expression('partial r'), xpd = NA, srt = -90,cex=1.1)    
-# text(0.94, -1.03, labels = expression('partial r'), xpd = NA, srt = -90,cex=1.1)
-#text(12000000, 0, labels = expression('Day y'^-1), xpd = NA, srt = -90,cex=1.1,col='red')
-
 dev.off()
 
