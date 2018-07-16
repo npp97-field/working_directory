@@ -48,11 +48,11 @@ get_historical<-function(f_name,varname){
     unitvar<-"mm day-1"
     lname<-"total precipitation"
   }else if(varname=='tas'){
-    selvar<-var[,,(nmon-239-offset):(nmon-offset)]+273.16 ##convert deg C
+    selvar<-var[,,(nmon-239-offset):(nmon-offset)]-273.16 ##convert deg C
     unitvar<-"deg C"
     lname<-"surface air temperature"
   }else if(varname=='tasmax'){
-    selvar<-var[,,(nmon-239-offset):(nmon-offset)]+273.16 ##convert deg C
+    selvar<-var[,,(nmon-239-offset):(nmon-offset)]-273.16 ##convert deg C
     unitvar<-"deg C"
     lname<-"maximum surface air temperature"
   }
