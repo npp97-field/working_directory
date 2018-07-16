@@ -23,8 +23,8 @@ get_historical<-function(f_name,varname){
     nmon<-dim(var)[3]
   }
   if (basename(dirname(f_name[1]))=="CMCC-CESM"){
-    ydim<-varf$dim[["i"]]
-    xdim<-varf$dim[["j"]]
+    ydim<-ncdim_def("lat",units = "deg",vals = (24:-23)*3.75-1.875)
+    xdim<-ncdim_def("lon",units = "deg",vals = (0:95)*3.75)
   }else{
     ydim<-varf$dim[["lat"]]
     xdim<-varf$dim[["lon"]]
