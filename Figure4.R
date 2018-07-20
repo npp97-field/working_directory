@@ -140,7 +140,7 @@ era_dat<-cbind(as.vector(prec),as.vector(prec_sig<0.05),as.vector(tday),as.vecto
 mod_dat[[2]]<-era_dat[complete.cases(era_dat),]
 
 
-pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig/Figure_4.pdf",height=6,width=9)
+pdf("/Users/yzhang/Dropbox/YAOZHANG/paper/2018_SIF_phenology/Fig/Figure_4.pdf",height=6,width=5)
 ### I will then analyze the correlation 
 par(fig=c(0,1,0.5,1),mar=c(0,4,1.5,1),mgp=c(3,0.3,0),oma=c(6,0,0,0))
 plot(NA,xlim=c(1.2,20.8),ylim=c(0,1.8),xaxs="i",yaxs="i",xlab="",ylab="",axes=F)
@@ -150,13 +150,13 @@ box()
 for (i in 1:10){
   single_mod_dat<-mod_dat[[i]]
   ### for temp limited
-  temp_dat<-single_mod_dat[,c(1,2,5,7)]
-  temp_lim<-temp_dat[temp_dat[,2]==1&temp_dat[,1]>0&temp_dat[,4]>0,3]
-  boxplot(temp_lim,at=i*2-0.3,col=ano_col_gmt[14],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
+  prec_dat<-single_mod_dat[,c(1,2,5,7)]
+  prec_lim<-prec_dat[prec_dat[,2]==1&prec_dat[,1]>0&prec_dat[,4]>0,3]
+  boxplot(prec_lim,at=i*2-0.3,col=ano_col_gmt[3],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
   ### for prec limited
-  prec_dat<-single_mod_dat[,c(3,4,5,7)]
-  prec_lim<-prec_dat[prec_dat[,2]==1&prec_dat[,1]>0&temp_dat[,4]>0,3]
-  boxplot(prec_lim,at=i*2+0.3,col=ano_col_gmt[3],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
+  temp_dat<-single_mod_dat[,c(3,4,5,7)]
+  temp_lim<-temp_dat[temp_dat[,2]==1&temp_dat[,1]>0&temp_dat[,4]>0,3]
+  boxplot(temp_lim,at=i*2+0.3,col=ano_col_gmt[14],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
 }
 
 abline(h=0.6,lty=2)
@@ -164,7 +164,7 @@ abline(v=5)
 mtext(side=2,line=2,"Aridity Index")
 mtext(side=2,line=3.4,'a',cex=1,font=2,padj=-9,las=2)
 
-
+legend(6,1.8,c("Temperature limited","Precipitation limited"),fill=ano_col_gmt[c(14,3)],cex = 0.8,bty='n')
 
 ############
 par(fig=c(0,1,0,0.605),mar=c(6,4,1.5,1),mgp=c(3,0.3,0),oma=c(0,0,0,0),new=T)
@@ -176,13 +176,13 @@ box()
 for (i in 1:10){
   single_mod_dat<-mod_dat[[i]]
   ### for temp limited
-  temp_dat<-single_mod_dat[,c(1,2,6,7)]
-  temp_lim<-temp_dat[temp_dat[,2]==1&temp_dat[,1]>0&temp_dat[,4]>0,3]
-  boxplot(temp_lim,at=i*2-0.3,col=ano_col_gmt[14],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
+  prec_dat<-single_mod_dat[,c(1,2,6,7)]
+  prec_lim<-prec_dat[prec_dat[,2]==1&prec_dat[,1]>0&prec_dat[,4]>0,3]
+  boxplot(prec_lim,at=i*2-0.3,col=ano_col_gmt[3],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
   ### for prec limited
-  prec_dat<-single_mod_dat[,c(3,4,6)]
-  prec_lim<-prec_dat[prec_dat[,2]==1&prec_dat[,1]>0&temp_dat[,4]>0,3]
-  boxplot(prec_lim,at=i*2+0.3,col=ano_col_gmt[3],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
+  temp_dat<-single_mod_dat[,c(3,4,6,7)]
+  temp_lim<-temp_dat[temp_dat[,2]==1&temp_dat[,1]>0&temp_dat[,4]>0,3]
+  boxplot(temp_lim,at=i*2+0.3,col=ano_col_gmt[14],border='gray45',add=T,xaxs="i",yaxs='i',outline=F,axes=F)
 }
 abline(h=2.5,lty=2)
 abline(v=5)
