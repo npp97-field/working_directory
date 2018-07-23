@@ -103,5 +103,41 @@ for (i in 1:7){
   calculate_AI(models[i])
 }
 
+####################################
+### calcualte the mean annual temperature
+get_annual_values<-function(var){
+  vdim<-dim(var)
+  dim(var)<-c(vdim[1:2],12,30)
+  annual_var<-apply(var,c(1,2,4),mean)
+  return(annual_var)
+}
 
+get_multi_year<-function(annual_var){
+  vdim<-dim(annual_var)
+  multiyear_avg<-apply(annual_var,c(1,2),mean)
+  return(multiyear_avg)
+}
+
+calculate_MAT<-function(model){
+  files<-list.files("./CMIP5/rcp85/",pattern=model,full.names = T)
+  ncin<-nc_open(files[6])
+  tas<-ncvar_get(ncin,'tas')
+  lon<-ncin$dim[["lon"]]
+  lat<-ncin$dim[["lat"]]
+  annual_T<-get_annual_values(tas)
+  average_T<-get_multi_year(annual_T)
+  year<-ncdim_def(name = "year",units = '',vals = 2071:2100)
+  mean_tas<-ncvar_def("avg_tas",'',list(lon,lat),prec="float",
+                     longname = "multi-year average temperature",compression = 9)
+  annual_tas<-ncvar_def("annual_tas",'',list(lon,lat,year),prec="float",
+                       longname = "yearly average temperature",compression = 9)
+  nc_out<-nc_create(filename = paste("./analysis/CMIP5_ANA/CMIP5_AI/rcp85_tas_",model,'_2071_2100.nc',sep=""),
+                    list(mean_tas,annual_tas))
+  ncvar_put(nc_out,varid=mean_tas,average_T)
+  ncvar_put(nc_out,varid=annual_tas,annual_T)
+  nc_close(nc_out)
+}
+for (i in 1:7){
+  calculate_MAT(models[i])
+}
 
