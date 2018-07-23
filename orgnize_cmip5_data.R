@@ -268,8 +268,34 @@ varf<-list.files("./DATA/CMIP5/HadGEM2-ES/",pattern="tas_.*rcp85",full.names = T
 get_rcp85(varf[3:6],"tas")
 varf<-list.files("./DATA/CMIP5/HadGEM2-ES/",pattern="hurs_.*rcp85",full.names = T)
 get_rcp85(varf[3:6],"hurs")
+
+# for wind speed, the dim is lat is 144
 varf<-list.files("./DATA/CMIP5/HadGEM2-ES/",pattern="sfcWind_.*rcp85",full.names = T)
 get_rcp85(varf[3:6],"sfcWind")
+
+############################
+ncin<-nc_open(paste("./PROJECT/SIF_phenology/CMIP5/rcp85/",
+                "sfcWind_HadGEM2-ES_rcp85_207101_210012.nc",sep=""))
+sfcWind<-ncvar_get(ncin,varid="sfcWind")
+lat1<-ncin$dim[["lat"]]$vals
+nc_close(ncin)
+sfcwind2<-array(NA,dim=c(192,145,360))
+ncin<-nc_open(paste("./PROJECT/SIF_phenology/CMIP5/rcp85/",
+                    "pr_HadGEM2-ES_rcp85_207101_210012.nc",sep=""))
+lat<-ncin$dim[["lat"]]
+lon<-ncin$dim[["lon"]]
+ym<-ncin$dim[['yearmonth']]
+nc_close(ncin)
+for (i in 1:192){
+  for (j in 1:360){
+    sfcwind2[i,,j]<-approx(lat1,sfcWind[i,,j],xout=lat$vals)$y
+  }
+}
+wind<-ncvar_def("sfcWind","m s-1",list(lon,lat,ym),longname = "surface wind speed",missval = -9999)
+ncout<-nc_create("./PROJECT/SIF_phenology/CMIP5/rcp85/sfcwind_HadGEM2-ES_rcp85_207101_210012.nc",wind)
+ncvar_put(ncout,varid=wind,sfcwind2)
+nc_close(ncout)
+###########################
 varf<-list.files("./DATA/CMIP5/HadGEM2-ES/",pattern="hfss_.*rcp85",full.names = T)
 get_rcp85(varf[3:6],"hfss")
 
