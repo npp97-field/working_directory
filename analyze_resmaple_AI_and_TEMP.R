@@ -65,10 +65,10 @@ ncvar_put(nc_out,futureAI,northai_val)
 ncvar_put(nc_out,currentAI,current_AI)
 nc_close(nc_out)
 
-model_tas<-list()
-files<-list.files("/Users/yzhang/Project/SIF_phenology/analysis/CMIP5_AI/",pattern="tas_",full.names = T)[c(1,3:7)]
+model_AIs<-list()
+files<-list.files("/Users/yzhang/Project/SIF_phenology/analysis/CMIP5_AI/",pattern="AI_",full.names = T)[c(1,3:7)]
 for (i in 1:6){
-  model_tas[[i]]<-resample_to_hd(files[i])
+  model_AIs[[i]]<-resample_to_hd(files[i])
 }
 
 
@@ -81,6 +81,11 @@ lon<-ncin$dim[["longitude"]]
 lat<-ncin$dim[['latitude']]
 
 
+model_tas<-list()
+files<-list.files("/Users/yzhang/Project/SIF_phenology/analysis/CMIP5_AI/",pattern="tas_",full.names = T)[c(1,3:7)]
+for (i in 1:6){
+  model_tas[[i]]<-resample_to_hd(files[i])
+}
 
 t_stack<-stack(model_tas)
 mme_t<-mean(t_stack)
@@ -93,7 +98,7 @@ northt_val<-t(apply(northt_val,1,rev))
 futuret<-ncvar_def('rcp85_tas','',dim = list(lon,lat),longname = "mean annual temperature from multi model ensemble mean")
 currentt<-ncvar_def('current_tas','',dim = list(lon,lat),longname = "mean annual temperature from CRU-TS 4.0")
 nc_out<-nc_create("/Users/yzhang/Project/SIF_phenology/analysis/future_t.nc",list(futuret,currentt))
-ncvar_put(nc_out,futuret,northai_val)
+ncvar_put(nc_out,futuret,northt_val)
 ncvar_put(nc_out,currentt,current_t)
 nc_close(nc_out)
 
