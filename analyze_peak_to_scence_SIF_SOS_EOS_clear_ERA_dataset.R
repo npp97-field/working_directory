@@ -522,6 +522,15 @@ calculate_correlation<-function(dat){
   return(c(cor_re$estimate,cor_re$p.value))
 }
 
+calculate_multivariate_regression<-function(dat){
+  if (sum(is.na(dat))>=1)
+    return(rep(NA,5))
+  n<-length(dat)
+  dim(dat)<-c(16,n/16)
+  reg_re<-lm(dat[,1]~dat[,2]+dat[,3]+dat[,4])
+  return(c(reg_re$coefficients,summary(reg_re)$r.squared))
+}
+
 ##### calculate correlation
 cal_cor<-function(data,fileout){
   data[data< -990]<-NA
@@ -560,6 +569,24 @@ cal_pcor<-function(data,fileout){
   nc_close(ncout)
 }
 
+##### calculate multivariate regression
+cal_reg<-function(data,fileout){
+  data[data< -990]<-NA
+  pcor_data<-apply(data,1,calculate_multivariate_regression)
+  pcoef<-pcor_data[1:4,]
+  pcoef[is.nan(pcoef)]<- -999.9
+  dim(pcoef)<-c(4,720,120)
+  ppv<-pcor_data[5,]
+  ppv[is.nan(ppv)]<- -999.9
+  dim(ppv)<-c(720,120)
+  vdim<-ncdim_def("coef_id",units = "",vals = 1:4)
+  reg_coef<-ncvar_def("regress_coef",'',list(vdim,xdim,ydim),-999.9,prec="double",compression=9)
+  reg_rsq<-ncvar_def("regress_rsq",'',list(xdim,ydim),-999.9,prec="double",compression=9)
+  ncout<-nc_create(fileout,list(reg_coef,reg_rsq))
+  ncvar_put(ncout,reg_coef,pcoef)
+  ncvar_put(ncout,reg_rsq,ppv)
+  nc_close(ncout)
+}
 
 ###### calculate the SOS effect on SIF EOS, etc
 if (T){
@@ -721,4 +748,41 @@ if (T){
   fileout<-"./analysis/correlation_clear_era/cor_lgs_r_p2e.nc"
   cal_cor(eos_csif,fileout)
 }
+
+
+setwd("/rigel/glab/users/zy2309/PROJECT/SIF_phenology")
+sos_file<-'./analysis/clear_daily_SOS_30N_fixed_stat.nc'
+pos_file<-"./analysis/clear_daily_POS_30N_fixed_stat.nc"
+eos_file<-"./analysis/clear_daily_EOS_30N_fixed_stat.nc"
+
+##### get average EOS and SOS
+eos_f<-nc_open(eos_file)
+eos_mean<-ncvar_get(eos_f,varid="MEAN")
+xdim2<-eos_f$dim[["longitude"]]
+ydim2<-eos_f$dim[["latitude"]]
+nc_close(eos_f)
+sos_f<-nc_open(sos_file)
+sos_mean<-ncvar_get(sos_f,varid="MEAN")
+nc_close(sos_f)
+pos_f<-nc_open(pos_file)
+pos_mean<-ncvar_get(pos_f,varid="MEAN")
+nc_close(pos_f)
+lgs_in_days<-rep(as.vector((eos_mean-sos_mean)*365),16)
+dim(lgs_in_days)<-c(86400,16)
+#################### regression analysis
+if (T){
+  eos_csif<-cbind((eos-sos),s2e_temp,s2e_prec*lgs_in_days,s2e_par)
+  fileout<-"./analysis/correlation_clear_era/reg_lgs_t_p_r_s2e.nc"
+  cal_reg(eos_csif,fileout)
+  eos_csif<-cbind(eos,pre_end1_temp,pre_end1_prec*30,pre_end1_par)
+  fileout<-"./analysis/correlation_clear_era/reg_eos_1mon_t_p_r.nc"
+  cal_reg(eos_csif,fileout)
+}
+
+
+
+
+
+
+
 
