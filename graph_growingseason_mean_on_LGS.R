@@ -97,11 +97,6 @@ for (d in 1:2){
     
     plot_nc_var_sig(nc_var_ae,nc_sig_ae,c(-1,1),exp_var[[v+d*2-2]],notion[v*2-2+d],rev(ano_col_gmt),
                     c(d,n_row+1-v),c(2,n_row))
-    
-    data_all<-cbind(as.vector(maxind*lc_data1),as.vector(sign_cor*lc_data1),as.vector(max_sig*lc_data1))
-    data_sign<-data_all[complete.cases(data_all),]
-    #neg_sig<-data_sign[data_sign[,2]<0|data_sign[,3]<0.05,1]
-    pos_sig<-data_sign[data_sign[,2]>0|data_sign[,3]<0.05,1]
   }
 }
 dev.off()
