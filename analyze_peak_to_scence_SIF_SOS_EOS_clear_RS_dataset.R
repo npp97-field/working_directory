@@ -836,3 +836,20 @@ if (T){
   fileout<-"./analysis/correlation_clear_rs/pcor_eos_pre1_prec.nc"
   cal_pcor(cli_eos,fileout)
 }
+
+
+if (T){
+  eos_csif<-cbind(eos-sos,s2e_tday)
+  fileout<-"./analysis/correlation_clear_rs/cor_lgs_t_p2e.nc"
+  cal_cor(eos_csif,fileout)
+  eos_csif<-cbind(eos-sos,s2e_prec)
+  fileout<-"./analysis/correlation_clear_rs/cor_lgs_p_p2e.nc"
+  cal_cor(eos_csif,fileout)
+  eos_csif<-cbind(eos-sos,s2e_par)
+  fileout<-"./analysis/correlation_clear_rs/cor_lgs_r_p2e.nc"
+  cal_cor(eos_csif,fileout)
+}
+
+
+
+

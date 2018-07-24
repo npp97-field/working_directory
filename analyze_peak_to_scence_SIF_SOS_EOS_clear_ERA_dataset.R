@@ -710,3 +710,15 @@ if (T){
 }
 
 
+if (T){
+  eos_csif<-cbind(eos-sos,s2e_temp)
+  fileout<-"./analysis/correlation_clear_era/cor_lgs_t_p2e.nc"
+  cal_cor(eos_csif,fileout)
+  eos_csif<-cbind(eos-sos,s2e_prec)
+  fileout<-"./analysis/correlation_clear_era/cor_lgs_p_p2e.nc"
+  cal_cor(eos_csif,fileout)
+  eos_csif<-cbind(eos-sos,s2e_par)
+  fileout<-"./analysis/correlation_clear_era/cor_lgs_r_p2e.nc"
+  cal_cor(eos_csif,fileout)
+}
+
