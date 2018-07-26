@@ -13,7 +13,7 @@ get_threshold<-function(var_ts,thresh=0.3){
   if (sum(is.na(var_ts))>1000){
     return(NA)
   }
-  dim(var_ts)<-c(365,13)
+  dim(var_ts)<-c(365,34)
   season_mean<-apply(var_ts,1,mean,na.rm=T)
   
   peak <- max(season_mean, na.rm=TRUE)
@@ -103,29 +103,29 @@ retrieve_sopeop<-function(gppfile,mod){
   #get the multiyear average first.
   #
   num_f<-length(modelf)
-  smoothed_north_gpp<-array(NA,dim=c(365*13,720*120))
-  for (i in (num_f-12):num_f){
+  smoothed_north_gpp<-array(NA,dim=c(365*num_f,720*120))
+  for (i in 1:num_f){
     ncin<-nc_open(modelf[i])
     gpp<-ncvar_get(ncin,varid = ncin$var[[1]])
     xdim<-ncin$dim[["lon"]]
     yval<-ncin$dim[["lat"]]$val[1:120]
     nc_close(ncin)
-    smoothed_north_gpp[((i-num_f+12)*365+1):((i-num_f+13)*365),]<-parApply(cl,gpp[,1:120,1:365],c(1,2),smooth_GPP)
+    smoothed_north_gpp[((i-1)*365+1):(i*365),]<-parApply(cl,gpp[,1:120,1:365],c(1,2),smooth_GPP)
   }
   ### get the threshold
   multiyear_threshold<-parCapply(cl,smoothed_north_gpp,get_threshold)
   ydim<-ncdim_def("lat","",vals = yval)
   ##  retrieve phenology for each year!
-  sop<-array(NA,dim=c(720,120,13))
-  eop<-array(NA,dim=c(720,120,13))
-  pop<-array(NA,dim=c(720,120,13))
-  threshold<-array(NA,dim=c(720,120,13))
+  sop<-array(NA,dim=c(720,120,num_f))
+  eop<-array(NA,dim=c(720,120,num_f))
+  pop<-array(NA,dim=c(720,120,num_f))
+  threshold<-array(NA,dim=c(720,120,num_f))
   dir.create(paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/",sep=""),recursive = T)
-  for (y in 1:13){
+  for (y in 1:num_f){
     pheno<-parCapply(cl,rbind(smoothed_north_gpp[(y*365-364):(y*365),],multiyear_threshold),retrieve_pheno_fix)
     dim(pheno)<-c(4,720,120)
-    file.remove(paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_",y+2000,".nc",sep=""))
-    export_nc(pheno,paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_",y+2000,".nc",sep=""),xdim,ydim)
+    file.remove(paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_",y+1979,".nc",sep=""))
+    export_nc(pheno,paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_",y+1979,".nc",sep=""),xdim,ydim)
     sop[,,y]<-pheno[1,,]
     pop[,,y]<-pheno[2,,]
     eop[,,y]<-pheno[3,,]
@@ -139,8 +139,8 @@ retrieve_sopeop<-function(gppfile,mod){
   mean_threshold<-apply(threshold,c(1,2),mean,na.rm=T)
   outdat<-abind(mean_sop,mean_pop,mean_eop,mean_threshold,along=3)
   ## output to nc files
-  file.remove(paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_mean.nc",sep=""))
-  export_nc(pheno,paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_mean.nc",sep=""),xdim,ydim)
+  file.remove(paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_1980-2013_mean.nc",sep=""))
+  export_nc(pheno,paste("./PROJECT/SIF_phenology/pheno_fluxcom/",mod,"/pheno_",mod,"_1980-2013_mean.nc",sep=""),xdim,ydim)
 }
 
 for (i in 1:3){
