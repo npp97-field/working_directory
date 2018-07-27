@@ -77,15 +77,16 @@ get_critical<-function(co2_brw){
   deseasonal<-gaussian_filter(c(smoothed_brw,rep(smoothed_brw[(length(smoothed_brw)-364):length(smoothed_brw)],2)), 
                               fwhm=390)[1:length(smoothed_brw)]
 
-  plot(date_brw,smoothed_brw,type='l')
-  lines(date_brw,co2_brw$value,col='red')
+  plot(date_brw,co2_brw$value,type='l')
+  lines(date_brw,smoothed_brw,col='red')
   lines(date_brw,deseasonal,col="orange")
   plot(date_brw,smoothed_brw-deseasonal)
   fit_coef<-fit_brw$coefficients
   
   co2_brw$deseasonal<-deseasonal
   seasonal = smoothed_brw-deseasonal
-  plot(date_brw,seasonal)
+  plot(date_brw,co2_brw$value-deseasonal,type="l")
+  lines(date_brw,seasonal,col='red',lwd=2)
   co2_brw$seasonal<-seasonal
 
   szc<-rep(NA,37)
@@ -178,14 +179,18 @@ axis(1,at=1980:2016,label=rep("",37),tck=-0.01)
 axis(1,at=0:7*5+1980,tck=-0.03)
 axis(2,las=2,tck=-0.03)
 mtext(side=1,line=2,"Year")
-mtext(side=2,line=2.3,"DOY")
+mtext(side=2,line=2.3,"Spring Zero Crossing date (DOY)")
 box()
-text(2002,13,"r=0.48, p=0.059",col="blue")
-text(2002,10,"r=-0.02, p=0.95",col="darkgreen")
+
 legend("topright",c("Average SOP (CSIF)","Average SOP (FLUXCOM)","spring zero crossing date"),
        lty=c(1,1,1),lwd=c(2,2,2),col=c("blue","darkgreen","red"),bty="n")
-cor.test(szc[22:37],average_sos)
-cor.test(szc[1:34],average_sos_flux)
+cor.csif<-cor.test(szc[22:37],average_sos)
+cor.fluxcom<-cor.test(szc[1:34],average_sos_flux)
+
+text(1984,7,substitute(expr = paste("r=",a, "   p=",b,sep=""),
+                        list(a=round(cor.csif$estimate,2),b=round(cor.csif$p.value,3))),col="blue",pos=4)
+text(1984,5,substitute(expr = paste("r=",a, "   p=",b,sep=""),
+                        list(a=round(cor.fluxcom$estimate,2),b=round(cor.fluxcom$p.value,3))),col="darkgreen",pos=4)
 ##### regression slopes
 reg1<-lm(ano_szc~years)
 lines(years,reg1$fitted.values,col="red",lty=2)
@@ -195,6 +200,13 @@ reg2<-lm(ano_sos~years[22:37])
 lines(years[22:37],reg2$fitted.values,col="blue",lty=2)
 reg3<-lm(ano_flux~years[1:34])
 lines(years[1:34],reg3$fitted.values,col="darkgreen",lty=2)
+
+text(1982,-3,substitute(expr = paste("slope=",a,sep=""),
+                        list(a=round(reg1$coefficients[2],2))),col="red",pos=4)
+text(1982,-5,substitute(expr = paste("slope=",a,sep=""),
+                       list(a=round(reg2$coefficients[2],2))),col="blue",pos=4)
+text(1982,-7,substitute(expr = paste("slope=",a,sep=""),
+                        list(a=round(reg3$coefficients[2],2))),col="darkgreen",pos=4)
 ##### significance test
 
 
@@ -210,20 +222,37 @@ axis(1,at=1980:2016,label=rep("",37),tck=-0.01)
 axis(1,at=0:7*5+1980,tck=-0.03)
 axis(2,las=2,tck=-0.03)
 mtext(side=1,line=2,"Year")
-mtext(side=2,line=2.3,"DOY")
+mtext(side=2,line=2.3,"Fall Zero Crossing date (DOY)")
 box()
-cor.test(fzc[22:37],average_eos)
+cor.csif<-cor.test(fzc[22:37],average_eos)
+cor.fluxcom<-cor.test(fzc[1:34],average_eos_flux)
+text(1994,7,substitute(expr = paste("r=",a, "   p=",b,sep=""),
+                       list(a=round(cor.csif$estimate,2),b=round(cor.csif$p.value,3))),col="blue",pos=4)
+text(1994,5,substitute(expr = paste("r=",a, "   p=",b,sep=""),
+                       list(a=round(cor.fluxcom$estimate,2),b=round(cor.fluxcom$p.value,3))),col="darkgreen",pos=4)
+
 reg1<-lm(ano_fzc~years)
 lines(years,reg1$fitted.values,col="red",lty=2)
 reg2<-lm(ano_eos~years[22:37])
 lines(years[22:37],reg2$fitted.values,col="blue",lty=2)
 reg3<-lm(ano_eos_flux~years[1:34])
 lines(years[1:34],reg3$fitted.values,col="darkgreen",lty=2)
-text(2002,21,"r=-0.15, p=0.59",col="blue")
-text(2002,16,"r=-0.30, p=0.31",col="darkgreen")
+
+text(1982,-8,substitute(expr = paste("slope=",a,sep=""),
+                        list(a=round(reg1$coefficients[2],2))),col="red",pos=4)
+text(1982,-10,substitute(expr = paste("slope=",a,sep=""),
+                        list(a=round(reg2$coefficients[2],2))),col="blue",pos=4)
+text(1982,-12,substitute(expr = paste("slope=",a,sep=""),
+                        list(a=round(reg3$coefficients[2],2))),col="darkgreen",pos=4)
 dev.off()
 
 
+
+
+
+
+
+####################################################
 plot_reg<-function(years,ano,col_used){
   reg<-lm(ano~years)
   lines(years,reg$fitted.values,col=col_used,lty=2)
@@ -246,7 +275,7 @@ for (y in 1980:2016){
 }
 temp<-raster(array(1:10,dim=c(2,5)))
 par(fig=c(0.5,1,0.5,1),mar=c(4,4,1,4))
-plot(temp, legend.only=TRUE, col=rev(jet.color),horizontal=F,zlim=c(1980,2016),
+plot(temp, legend.only=TRUE, col=jet.color,horizontal=F,zlim=c(1980,2016),
      legend.width=1, legend.shrink=0.75,
      axis.args=list(at=1980+(0:7)*5,
                     mgp=c(3,0.2,0),tck=0.3,
