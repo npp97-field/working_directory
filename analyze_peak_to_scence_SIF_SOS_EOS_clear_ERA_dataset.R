@@ -531,6 +531,15 @@ calculate_multivariate_regression<-function(dat){
   return(c(reg_re$coefficients,summary(reg_re)$r.squared))
 }
 
+calculate_regression<-function(dat){
+  if (sum(is.na(dat))>=1)
+    return(rep(NA,3))
+  dim(dat)<-c(16,2)
+  reg_re<-lm(dat[,1]~dat[,2])
+  return(c(reg_re$coefficients,summary(reg_re)$r.squared))
+}
+
+
 ##### calculate correlation
 cal_cor<-function(data,fileout){
   data[data< -990]<-NA
@@ -572,14 +581,20 @@ cal_pcor<-function(data,fileout){
 ##### calculate multivariate regression
 cal_reg<-function(data,fileout){
   data[data< -990]<-NA
-  pcor_data<-apply(data,1,calculate_multivariate_regression)
-  pcoef<-pcor_data[1:4,]
+  n<-dim(data)[2]/16
+  if (n==4){
+    pcor_data<-apply(data,1,calculate_multivariate_regression)
+  }else{
+    pcor_data<-apply(data,1,calculate_regression)
+  }
+
+  pcoef<-pcor_data[1:n,]
   pcoef[is.nan(pcoef)]<- -999.9
-  dim(pcoef)<-c(4,720,120)
-  ppv<-pcor_data[5,]
+  dim(pcoef)<-c(n,720,120)
+  ppv<-pcor_data[n+1,]
   ppv[is.nan(ppv)]<- -999.9
   dim(ppv)<-c(720,120)
-  vdim<-ncdim_def("coef_id",units = "",vals = 1:4)
+  vdim<-ncdim_def("coef_id",units = "",vals = 1:n)
   reg_coef<-ncvar_def("regress_coef",'',list(vdim,xdim,ydim),-999.9,prec="double",compression=9)
   reg_rsq<-ncvar_def("regress_rsq",'',list(xdim,ydim),-999.9,prec="double",compression=9)
   ncout<-nc_create(fileout,list(reg_coef,reg_rsq))
@@ -777,8 +792,23 @@ if (T){
   eos_csif<-cbind(eos,pre_end1_temp,pre_end1_prec*30,pre_end1_par)
   fileout<-"./analysis/correlation_clear_era/reg_eos_1mon_t_p_r.nc"
   cal_reg(eos_csif,fileout)
+  
+  sos_csif<-cbind(sos,pre_start1_temp,pre_start1_prec*30,pre_start1_par)
+  fileout<-"./analysis/correlation_clear_era/reg_sos_1mon_t_p_r.nc"
+  cal_reg(sos_csif,fileout)
+
 }
 
+if (T){
+  eos_csif<-cbind(eos,pre_end1_temp)
+  fileout<-"./analysis/correlation_clear_era/reg_eos_1mon_t.nc"
+  cal_reg(eos_csif,fileout)
+  
+  sos_csif<-cbind(sos,pre_start1_temp)
+  fileout<-"./analysis/correlation_clear_era/reg_sos_1mon_t.nc"
+  cal_reg(sos_csif,fileout)
+
+}
 
 
 
