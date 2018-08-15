@@ -15,7 +15,7 @@ coastline<-shapefile("/Users/yzhang/Data/GIS_data/global/ne_110m_coastline.shp")
 cropcoast<-crop(coastline,extent(-180,180,30,90))
 repcoa<-spTransform(cropcoast,ae)
 
-setwd("/Users/yzhang/Project/SIF_phenology/analysis/")
+setwd("/Users/yzhang/Project/SIF_phenology/analysis/clear_daily_phenology/")
 ncin<-nc_open(paste("./",indi,"_SOS_30N_fixed_stat.nc",sep=""))
 sossif<-ncvar_get(nc = ncin,varid = "MEAN")
 sostrend<-ncvar_get(nc = ncin,varid = "TREND")

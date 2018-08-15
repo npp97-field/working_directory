@@ -149,7 +149,7 @@ for (j in 1:length(lc_used)){
   range<-c(min(sos_stat_out[,lc_used[j],3],na.rm=T),max(sos_stat_out[,lc_used[j],3],na.rm=T))
   lines(range,range*reg$coefficients[2]+reg$coefficients[1],col=lc_col[lc_used[j]])
 }
-
+mtext(side=2,line=2.5,"a",cex=1,font=2,padj=-11,las=2)
 legend("bottomleft",lc_type[lc_used],col=lc_col[lc_used],pch=rep(1,9),bty="n",cex=0.7)
 reg_all<-lm(as.vector(sos_stat_out[,lc_used,1])~as.vector(sos_stat_out[,lc_used,3]))
 corr<-cor.test(as.vector(sos_stat_out[,lc_used,1]),as.vector(sos_stat_out[,lc_used,3]))
@@ -172,7 +172,7 @@ for (j in 1:length(lc_used)){
   range<-c(min(eos_stat_out[,lc_used[j],3],na.rm=T),max(eos_stat_out[,lc_used[j],3],na.rm=T))
   lines(range,range*reg$coefficients[2]+reg$coefficients[1],col=lc_col[lc_used[j]])
 }
-
+mtext(side=2,line=2.5,"b",cex=1,font=2,padj=-11,las=2)
 reg_all<-lm(as.vector(eos_stat_out[,lc_used,1])~as.vector(eos_stat_out[,lc_used,3]))
 corr<-cor.test(as.vector(eos_stat_out[,lc_used,1]),as.vector(eos_stat_out[,lc_used,3]))
 text(3,10,pos=2,substitute(paste(italic(gamma),"=",slo%+-%std),
